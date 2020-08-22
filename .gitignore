@@ -3,3 +3,12 @@
 ################################################################################
 
 /.vs/fNabla/v16
+/fNablaBatch/x64
+/fNablaEngine/x64
+/fNablaGUI/x64
+/fNablaResources/Resources
+/fSettingWidgetPlugin/x64/Release
+/Signing
+/x64
+/Settings location.lnk
+/fNablaEngine/Colormaps.py

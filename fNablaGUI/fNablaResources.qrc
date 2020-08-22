@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/fNablaResources">
+        <file alias="default.png">../fNablaResources/Resources/default.png</file>
+        <file alias="SplashScreen.png">../fNablaResources/Resources/SplashScreen.png</file>
+        <file alias="fNabla.ico">../fNablaResources/Resources/fNabla.ico</file>
+    </qresource>
+</RCC>
