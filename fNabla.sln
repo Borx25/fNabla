@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fNablaGUI", "fNablaGUI\fNablaGUI.vcxproj", "{668BAC09-9347-42BF-81FB-76D2DB49B418}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fNablaEngine", "fNablaEngine\fNablaEngine.vcxproj", "{A6B0A440-8B40-499E-B02E-6558AED6C07E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fNablaBatch", "fNablaBatch\fNablaBatch.vcxproj", "{D62432C2-6251-4A14-BA8C-68769AE09240}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fNablaResources", "fNablaResources\fNablaResources.vcxproj", "{5B403446-22EE-4F88-81BF-D46D1C4EBB1A}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "fNablaSetup", "fNablaSetup\fNablaSetup.vdproj", "{1114C741-0C45-41F2-BEAC-78221FB7EAE6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fSettingWidgetPlugin", "fSettingWidgetPlugin\fSettingWidgetPlugin.vcxproj", "{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Debug|x64.ActiveCfg = Debug|x64
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Debug|x64.Build.0 = Debug|x64
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Debug|x86.ActiveCfg = Debug|x64
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Release|x64.ActiveCfg = Release|x64
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Release|x64.Build.0 = Release|x64
+		{668BAC09-9347-42BF-81FB-76D2DB49B418}.Release|x86.ActiveCfg = Release|x64
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Debug|x64.ActiveCfg = Debug|x64
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Debug|x64.Build.0 = Debug|x64
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Debug|x86.ActiveCfg = Debug|Win32
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Debug|x86.Build.0 = Debug|Win32
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Release|x64.ActiveCfg = Release|x64
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Release|x64.Build.0 = Release|x64
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Release|x86.ActiveCfg = Release|Win32
+		{A6B0A440-8B40-499E-B02E-6558AED6C07E}.Release|x86.Build.0 = Release|Win32
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Debug|x64.ActiveCfg = Debug|x64
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Debug|x64.Build.0 = Debug|x64
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Debug|x86.ActiveCfg = Debug|x64
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Release|x64.ActiveCfg = Release|x64
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Release|x64.Build.0 = Release|x64
+		{D62432C2-6251-4A14-BA8C-68769AE09240}.Release|x86.ActiveCfg = Release|x64
+		{5B403446-22EE-4F88-81BF-D46D1C4EBB1A}.Debug|x64.ActiveCfg = Debug|x64
+		{5B403446-22EE-4F88-81BF-D46D1C4EBB1A}.Debug|x86.ActiveCfg = Debug|Win32
+		{5B403446-22EE-4F88-81BF-D46D1C4EBB1A}.Release|x64.ActiveCfg = Release|x64
+		{5B403446-22EE-4F88-81BF-D46D1C4EBB1A}.Release|x86.ActiveCfg = Release|Win32
+		{1114C741-0C45-41F2-BEAC-78221FB7EAE6}.Debug|x64.ActiveCfg = Debug
+		{1114C741-0C45-41F2-BEAC-78221FB7EAE6}.Debug|x86.ActiveCfg = Debug
+		{1114C741-0C45-41F2-BEAC-78221FB7EAE6}.Release|x64.ActiveCfg = Release
+		{1114C741-0C45-41F2-BEAC-78221FB7EAE6}.Release|x64.Build.0 = Release
+		{1114C741-0C45-41F2-BEAC-78221FB7EAE6}.Release|x86.ActiveCfg = Release
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Debug|x64.ActiveCfg = Debug|x64
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Debug|x64.Build.0 = Debug|x64
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Debug|x86.ActiveCfg = Debug|x64
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Release|x64.ActiveCfg = Release|x64
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Release|x64.Build.0 = Release|x64
+		{8D81975E-DAA1-4F6A-90A8-A63FB33188D0}.Release|x86.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E35C0ABF-6342-4807-977C-2425ABAEFB02}
+		Qt5Version = $(DefaultQtVersion)
+	EndGlobalSection
+EndGlobal
