@@ -4,8 +4,6 @@
 #include "device_launch_parameters.h"
 
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc.hpp>
 
 
 constexpr double _PI = 3.14159265358979323846;

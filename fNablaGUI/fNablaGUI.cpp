@@ -20,224 +20,386 @@ int main(int argc, char* argv[]){
 fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 	ui.setupUi(this);
 
-	this->DefaultImage.load(":/fNablaResources/default.png");
+	DefaultImage.load(":/fNablaResources/default.png");
 
-	this->MapSlots[0] = {
-		new fNablaEngine::DisplacementMap(),
-		this->ui.Settings_displacement_suffix,
-		this->ui.Settings_displacement_depth,
-		this->ui.Settings_displacement_format,
-		this->ui.actionSetExport_Displacement,
-		this->ui.Label_Displacement,
-		this->ui.scrollArea_Displacement
-		};
-	this->MapSlots[1] = {
-		new fNablaEngine::NormalMap(),
-		this->ui.Settings_normal_suffix,
-		this->ui.Settings_normal_depth,
-		this->ui.Settings_normal_format,
-		this->ui.actionSetExport_TSNormal,
-		this->ui.Label_TSNormal,
-		this->ui.scrollArea_TSNormal
-		};
+	local_config = fNablaEngine::Config();
 
-	this->MapSlots[2] = {
-		new fNablaEngine::CurvatureMap(),
-		this->ui.Settings_curvature_suffix,
-		this->ui.Settings_curvature_depth,
-		this->ui.Settings_curvature_format,
-		this->ui.actionSetExport_Curvature,
-		this->ui.Label_Curvature,
-		this->ui.scrollArea_Curvature
-		};
+	MapInfoArray = { {
+		{
+		QStringLiteral("Displacement Map"),
+		QStringLiteral("Displacement"),
+		ui.Settings_displacement_suffix,
+		ui.Settings_displacement_depth,
+		ui.Settings_displacement_format,
+		ui.actionSetExport_Displacement,
+		ui.Settings_displacement_enable,
+		ui.Label_Displacement,
+		ui.scrollArea_Displacement
+		},
+		{
+		QStringLiteral("Normal Map"),
+		QStringLiteral("Normal"),
+		ui.Settings_normal_suffix,
+		ui.Settings_normal_depth,
+		ui.Settings_normal_format,
+		ui.actionSetExport_TSNormal,
+		ui.Settings_normal_enable,
+		ui.Label_TSNormal,
+		ui.scrollArea_TSNormal
+		},
+		{
+		QStringLiteral("Curvature Map"),
+		QStringLiteral("Curvature"),
+		ui.Settings_curvature_suffix,
+		ui.Settings_curvature_depth,
+		ui.Settings_curvature_format,
+		ui.actionSetExport_Curvature,
+		ui.Settings_curvature_enable,
+		ui.Label_Curvature,
+		ui.scrollArea_Curvature
+		},
+		{
+		QStringLiteral("Ambient Occlusion Map"),
+		QStringLiteral("AO"),
+		ui.Settings_ao_suffix,
+		ui.Settings_ao_depth,
+		ui.Settings_ao_format,
+		ui.actionSetExport_AO,
+		ui.Settings_ao_enable,
+		ui.Label_AO,
+		ui.scrollArea_AO
+		},
+	}};
 
-	this->MapSlots[3] = {
-		new fNablaEngine::AmbientOcclusionMap(),
-		this->ui.Settings_ao_suffix,
-		this->ui.Settings_ao_depth,
-		this->ui.Settings_ao_format,
-		this->ui.actionSetExport_AO,
-		this->ui.Label_AO,
-		this->ui.scrollArea_AO
-		};
+	Maps = { {
+		std::make_shared<fNablaEngine::DisplacementMap>(local_config),
+		std::make_shared<fNablaEngine::NormalMap>(local_config),
+		std::make_shared<fNablaEngine::CurvatureMap>(local_config),
+		std::make_shared<fNablaEngine::AmbientOcclusionMap>(local_config),
+	} };
 
-	this->UIScaleFactor = 1.0;
+	UIScaleFactor = 1.0;
 
 	//CONNECTIONS
+	for (int i = 0; i < NumMaps; i++) {
+		QObject::connect(MapInfoArray[i].ExportAction, &QAction::triggered, this, &fNablaGUI::CheckAnyExportSelected);
 
-	for (int i = 0; i < this->NumMaps; i++) {
-		QObject::connect(this->MapSlots[i].ExportAction, &QAction::triggered, this, &fNablaGUI::CheckAnyExportSelected);
-
-		if (this->MapSlots[i].ExportDepth->currentIndex() == 0)  //set initial conditions
-		{
-			qobject_cast<QStandardItemModel*>(this->MapSlots[i].ExportFormat->model())->item(1)->setEnabled(false);
-		}
-
-		QObject::connect(this->MapSlots[i].ExportDepth, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
-			bool mode_32bit = (idx == 0);
-			qobject_cast<QStandardItemModel*>(this->MapSlots[i].ExportFormat->model())->item(1)->setEnabled(!mode_32bit);
-			if (mode_32bit)
-			{
-				this->MapSlots[i].ExportFormat->setCurrentIndex(0);
+		QObject::connect(MapInfoArray[i].ExportDepth, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
+			local_config.export_settings[i].Set_bitdepth(idx);
+			int updated_format = local_config.export_settings[i].Get_format();
+			if (MapInfoArray[i].ExportFormat->currentIndex() != updated_format) {
+				MapInfoArray[i].ExportFormat->setCurrentIndex(updated_format);
 			}
 		});
 
-		QObject::connect(this->MapSlots[i].DisplayScrollArea->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this, i](int value) {
-			for (int j = 0; j < this->NumMaps; j++) {
+		QObject::connect(MapInfoArray[i].ExportFormat, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
+			local_config.export_settings[i].Set_format(idx);
+			int updated_bitdepth = local_config.export_settings[i].Get_bitdepth();
+			if (MapInfoArray[i].ExportDepth->currentIndex() != updated_bitdepth) {
+				MapInfoArray[i].ExportDepth->setCurrentIndex(updated_bitdepth);
+			}
+		});
+
+		QObject::connect(MapInfoArray[i].ExportSuffix, &QLineEdit::editingFinished, this, [this, i]() {
+			local_config.export_settings[i].Set_suffix(MapInfoArray[i].ExportSuffix->text().toStdString());
+		});
+
+		QRegExpValidator SuffixValidator(QRegExp("[a-zA-Z0-9_-]{2,25}"), this);
+		MapInfoArray[i].ExportSuffix->setValidator(&SuffixValidator);
+
+		QObject::connect(MapInfoArray[i].DisplayScrollArea->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this, i](int value) {
+			for (int j = 0; j < NumMaps; j++) {
 				if (i != j)
 				{
-					this->MapSlots[j].DisplayScrollArea->horizontalScrollBar()->setValue(value);
+					MapInfoArray[j].DisplayScrollArea->horizontalScrollBar()->setValue(value);
 				}
 			}
 		});
 
-		QObject::connect(this->MapSlots[i].DisplayScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, [this, i](int value) {
-			for (int j = 0; j < this->NumMaps; j++) {
+		QObject::connect(MapInfoArray[i].DisplayScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, [this, i](int value) {
+			for (int j = 0; j < NumMaps; j++) {
 				if (i != j)
 				{
-					this->MapSlots[j].DisplayScrollArea->verticalScrollBar()->setValue(value);
+					MapInfoArray[j].DisplayScrollArea->verticalScrollBar()->setValue(value);
 				}
 			}
 		});
 	}
-
-	QObject::connect(this->ui.swizzle_x, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &fNablaGUI::on_swizzle_updated);
-	QObject::connect(this->ui.swizzle_y, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &fNablaGUI::on_swizzle_updated);
-
-	QObject::connect(this->ui.actionExport_All, &QAction::triggered, this, [this]() {
-		this->Export(true); 
+	QObject::connect(ui.actionExport_All, &QAction::triggered, this, [this]() {
+		Export(true); 
 	});
-	QObject::connect(this->ui.actionExport_Selected, &QAction::triggered, this, [this]() {
-		this->Export(false);
+	QObject::connect(ui.actionExport_Selected, &QAction::triggered, this, [this]() {
+		Export(false);
 	});
-
-	QObject::connect(this->ui.actionZoom_In, &QAction::triggered, this, [this]() {
-		this->Zoom(1.25);
+	QObject::connect(ui.actionZoom_In, &QAction::triggered, this, [this]() {
+		Zoom(1.25);
 	});
-	QObject::connect(this->ui.actionZoom_Out, &QAction::triggered, this, [this]() {
-		this->Zoom(0.8);
+	QObject::connect(ui.actionZoom_Out, &QAction::triggered, this, [this]() {
+		Zoom(0.8);
 	});
-	QObject::connect(this->ui.actionFit_Window, &QAction::triggered, this, [this]() {
-		this->Zoom(1.0, true);
+	QObject::connect(ui.actionFit_Window, &QAction::triggered, this, [this]() {
+		Zoom(1.0, true);
 	});
 
-	QObject::connect(this->ui.actionLoad_Displacement, &QAction::triggered, this, [this]() {
-		this->LoadMap(fNablaEngine::DISPLACEMENT);
+	QObject::connect(ui.actionLoad_Displacement, &QAction::triggered, this, [this]() {
+		LoadMap(fNablaEngine::DISPLACEMENT);
 	});
-	QObject::connect(this->ui.actionLoad_TSNormal, &QAction::triggered, this, [this]() {
-		this->LoadMap(fNablaEngine::NORMAL);
+	QObject::connect(ui.actionLoad_TSNormal, &QAction::triggered, this, [this]() {
+		LoadMap(fNablaEngine::NORMAL);
 	});
-	QObject::connect(this->ui.actionLoad_Curvature, &QAction::triggered, this, [this]() {
-		this->LoadMap(fNablaEngine::CURVATURE);
+	QObject::connect(ui.actionLoad_Curvature, &QAction::triggered, this, [this]() {
+		LoadMap(fNablaEngine::CURVATURE);
 	});
-
-	QObject::connect(this->ui.actionExit, &QAction::triggered, this, [this]() {
+	QObject::connect(ui.actionClear, &QAction::triggered, this, [this]() {
+		input_map_type = -1;
+		ui.ProgressBar->setValue(0);
+		ui.Status->setText(QStringLiteral(""));
+		for (int i = 0; i < NumMaps; i++) {
+			Maps[i]->Mat.release();
+			MapInfoArray[i].DisplayLabel->setPixmap(DefaultImage);
+		}
+		SetLoadedState(false);
+	});
+	QObject::connect(ui.actionAbout_fNabla, &QAction::triggered, this, [this]() {
+		QMessageBox::about(this, "About fNabla", "<b>fNabla</b><br><br>Version 1.0<br>fNabla is a tool for conversion between various mesh maps<br>Copyright (C) 2020 Borja Franco Garcia");
+	});
+	QObject::connect(ui.actionExit, &QAction::triggered, this, [this]() {
 		QCoreApplication::exit(0);
 	});
+	QObject::connect(ui.Settings_high_pass, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.integration_window.Set(value);
+		if (LoadedState) {
+			ReprocessAll();
+		}
+	});
+	QObject::connect(ui.Settings_displacement_mode, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+		local_config.displacement_colormap.Set(idx);
+		if (LoadedState && MapInfoArray[0].EnableSetting->isChecked()) {
+			Draw(fNablaEngine::DISPLACEMENT);
+		}
+	});
+	QObject::connect(ui.Settings_normal_scale, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.normal_scale.Set(value);
+		if (LoadedState && MapInfoArray[1].EnableSetting->isChecked()) {
+			Draw(fNablaEngine::NORMAL);
+		}
+	});
+	QObject::connect(ui.swizzle_x, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+		local_config.normal_swizzle.Set(ui.swizzle_x->currentIndex(), ui.swizzle_y->currentIndex());
+		if (LoadedState && MapInfoArray[1].EnableSetting->isChecked()) {
+			ReprocessAll();
+		}
+	});
+	QObject::connect(ui.swizzle_y, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+		local_config.normal_swizzle.Set(ui.swizzle_x->currentIndex(), ui.swizzle_y->currentIndex());
+		if (LoadedState && MapInfoArray[1].EnableSetting->isChecked()) {
+			ReprocessAll();
+		}
+	});
+	QObject::connect(ui.Settings_curvature_scale, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.curvature_scale.Set(value);
+		if (LoadedState && MapInfoArray[2].EnableSetting->isChecked()) {
+			Draw(fNablaEngine::CURVATURE);
+		}
+	});
+	QObject::connect(ui.Settings_curvature_mode, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+		local_config.curvature_mode.Set(idx);
+		if (LoadedState && MapInfoArray[2].EnableSetting->isChecked()) {
+			Draw(fNablaEngine::CURVATURE);
+		}
+	});
+	QObject::connect(ui.Settings_ao_scale, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.ao_scale.Set(value);
+		if (LoadedState && MapInfoArray[3].EnableSetting->isChecked()) {
+			Compute_AO();
+			Draw(fNablaEngine::AO);
+		}
+	});
+	QObject::connect(ui.Settings_ao_power, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.ao_power.Set(value);
+		if (LoadedState && MapInfoArray[3].EnableSetting->isChecked()) {
+			Draw(fNablaEngine::AO);
+		}
+	});
+	QObject::connect(ui.Settings_ao_distance, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.ao_distance.Set(value);
+		if (LoadedState && MapInfoArray[3].EnableSetting->isChecked()) {
+			Compute_AO();
+			Draw(fNablaEngine::AO);
+		}
+	});
+	QObject::connect(ui.Settings_ao_samples, &SettingWidget::valueChanged, this, [this](double value) {
+		local_config.ao_samples.Set((int)value);
+		if (LoadedState && MapInfoArray[3].EnableSetting->isChecked()) {
+			Compute_AO();
+			Draw(fNablaEngine::AO);
+		}
+	});
+	QObject::connect(ui.WorkingResolution, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+		WorkingScaleFactor = exp(-log(2.0) * double(idx));
 
-	this->ui.actionSetExportGroup->setExclusive(false);
+		if (LoadedState) {
+			ReprocessAll();
+			ui.actionFit_Window->trigger();
+		}
+	});
 
-	//suffix validation
-	this->SuffixValidator = new QRegExpValidator(QRegExp("[a-zA-Z0-9_-]{2,25}"), this);
-	this->ui.Settings_displacement_suffix->setValidator(SuffixValidator);
-	this->ui.Settings_normal_suffix->setValidator(SuffixValidator);
-	this->ui.Settings_curvature_suffix->setValidator(SuffixValidator);
-	this->ui.Settings_ao_suffix->setValidator(SuffixValidator);
+	ui.actionSetExportGroup->setExclusive(false);
 
-	//initialize settings
-	this->settings = new QSettings();
-
-	//read settings from ini or defaults
-	this->resize(this->settings->value("GUI/size", QSize(1350, 900)).toSize());
-	this->move(this->settings->value("GUI/pos", QPoint(100, 50)).toPoint());
-
-	this->ui.Settings_depth->setValue(this->settings->value("Global/depth", 0.25).toDouble());
-	this->ui.Settings_high_pass->setValue(this->settings->value("Global/window", 1.0).toDouble());
-	this->ui.Settings_displacement_mode->setCurrentIndex(this->settings->value("Displacement/colormap", 0).toInt());
-	this->ui.Settings_curvature_sharpness->setValue(this->settings->value("Curvature/sharpness", 0.35).toDouble());
-	this->ui.Settings_curvature_mode->setCurrentIndex(this->settings->value("Curvature/mode", 0).toInt());
-	this->ui.Settings_ao_samples->setValue(this->settings->value("AO/samples", 16.0).toDouble());
-	this->ui.Settings_ao_distance->setValue(this->settings->value("AO/distance", 0.35).toDouble());
-	this->ui.Settings_ao_power->setValue(this->settings->value("AO/power", 0.45).toDouble());
-	this->ui.swizzle_x->setCurrentIndex(this->settings->value("Normal/swizzle_x", 0).toInt());
-	this->ui.swizzle_y->setCurrentIndex(this->settings->value("Normal/swizzle_y", 0).toInt());
-
-	this->ui.Settings_displacement_format->setCurrentIndex(this->settings->value("Displacement/format", 0).toInt());
-	this->ui.Settings_displacement_depth->setCurrentIndex(this->settings->value("Displacement/bitdepth", 0).toInt());
-	this->ui.Settings_displacement_suffix->setText(this->settings->value("Displacement/suffix", QStringLiteral("_displacement")).toString());
-
-	this->ui.Settings_normal_format->setCurrentIndex(this->settings->value("Normal/format", 1).toInt());
-	this->ui.Settings_normal_depth->setCurrentIndex(this->settings->value("Normal/bitdepth", 1).toInt());
-	this->ui.Settings_normal_suffix->setText(this->settings->value("Normal/suffix", QStringLiteral("_normal")).toString());
-
-	this->ui.Settings_curvature_format->setCurrentIndex(this->settings->value("Curvature/format", 1).toInt());
-	this->ui.Settings_curvature_depth->setCurrentIndex(this->settings->value("Curvature/bitdepth", 1).toInt());
-	this->ui.Settings_curvature_suffix->setText(this->settings->value("Curvature/suffix", QStringLiteral("_curvature")).toString());
-
-	this->ui.Settings_ao_format->setCurrentIndex(this->settings->value("AO/format", 1).toInt());
-	this->ui.Settings_ao_depth->setCurrentIndex(this->settings->value("AO/bitdepth", 1).toInt());
-	this->ui.Settings_ao_suffix->setText(this->settings->value("AO/suffix", QStringLiteral("_ambient_occlusion")).toString());
+	LoadSettings();
 }
 
 //ProgressBar Macros
 #define START_PROGRESSBAR(NUM_MILESTONES)		\
 	int _NUM_MILESTONES = NUM_MILESTONES;		\
 	int _MILESTONE_COUNTER = 0;					\
-	this->ui.ProgressBar->setValue(0);			\
+	ui.ProgressBar->setValue(0);				\
 
 
 #define MILESTONE(STATUS)																\
-	this->ui.Status->setText(QStringLiteral(STATUS));									\
+	ui.Status->setText(QStringLiteral(STATUS));											\
 	_MILESTONE_COUNTER += 1;															\
-	this->ui.ProgressBar->setValue(int(100.0 * _MILESTONE_COUNTER/_NUM_MILESTONES));	\
+	ui.ProgressBar->setValue(int(100.0 * _MILESTONE_COUNTER/_NUM_MILESTONES));			\
 
 
 void fNablaGUI::closeEvent(QCloseEvent* event) {
-	this->settings->setValue("GUI/size", this->size());
-	this->settings->setValue("GUI/pos", this->pos());
+	settings->setValue("GUI/size", size());
+	settings->setValue("GUI/pos", pos());
 }
-
-void fNablaGUI::on_actionSaveSettings_clicked() {
-	this->settings->setValue("Global/depth", this->ui.Settings_depth->Value());
-	this->settings->setValue("Global/window", this->ui.Settings_high_pass->Value());
-	this->settings->setValue("Displacement/colormap", this->ui.Settings_displacement_mode->currentIndex());
-	this->settings->setValue("Curvature/sharpness", this->ui.Settings_curvature_sharpness->Value());
-	this->settings->setValue("Curvature/mode", this->ui.Settings_curvature_mode->currentIndex());
-	this->settings->setValue("AO/samples", this->ui.Settings_ao_samples->Value());
-	this->settings->setValue("AO/distance", this->ui.Settings_ao_distance->Value());
-	this->settings->setValue("AO/power", this->ui.Settings_ao_power->Value());
-	this->settings->setValue("Normal/swizzle_x", this->ui.swizzle_x->currentIndex());
-	this->settings->setValue("Normal/swizzle_y", this->ui.swizzle_y->currentIndex());
-
-	this->settings->setValue("Displacement/format", this->ui.Settings_displacement_format->currentIndex());
-	this->settings->setValue("Displacement/bitdepth", this->ui.Settings_displacement_depth->currentIndex());
-	this->settings->setValue("Displacement/suffix", this->ui.Settings_displacement_suffix->text());
-
-	this->settings->setValue("Normal/format", this->ui.Settings_normal_format->currentIndex());
-	this->settings->setValue("Normal/bitdepth", this->ui.Settings_normal_depth->currentIndex());
-	this->settings->setValue("Normal/suffix", this->ui.Settings_normal_suffix->text());
-
-	this->settings->setValue("Curvature/format", this->ui.Settings_curvature_format->currentIndex());
-	this->settings->setValue("Curvature/bitdepth", this->ui.Settings_curvature_depth->currentIndex());
-	this->settings->setValue("Curvature/suffix", this->ui.Settings_curvature_suffix->text());
-
-	this->settings->setValue("AO/format", this->ui.Settings_ao_format->currentIndex());
-	this->settings->setValue("AO/bitdepth", this->ui.Settings_ao_depth->currentIndex());
-	this->settings->setValue("AO/suffix", this->ui.Settings_ao_suffix->text());
-}
-
 
 void fNablaGUI::CheckAnyExportSelected() {
 	bool anyChecked = false;
-	for (int i = 0; i < this->NumMaps; i++) {
-		anyChecked = (anyChecked || this->MapSlots[i].ExportAction->isChecked());
+	for (int i = 0; i < NumMaps; i++) {
+
+		anyChecked = (anyChecked || MapInfoArray[i].EnableSetting->isChecked());
 	}
-	this->ui.actionExport_Selected->setEnabled(anyChecked && (this->input_map_type != -1));
+	ui.actionExport_Selected->setEnabled(anyChecked && (input_map_type != -1));
+}
+
+//SETTINGS
+
+void fNablaGUI::LoadSettings() {
+	settings = std::make_unique<QSettings>();
+
+	resize(settings->value("GUI/size", QSize(1350, 900)).toSize());
+	move(settings->value("GUI/pos", QPoint(100, 50)).toPoint());
+
+	ui.Settings_high_pass->setValue(settings->value("Global/window", local_config.integration_window.Get_raw()).toDouble());
+
+	ui.Settings_displacement_mode->setCurrentIndex(settings->value("Displacement/colormap", local_config.displacement_colormap.Get_raw()).toInt());
+
+	ui.Settings_normal_scale->setValue(settings->value("Normal/scale", local_config.normal_scale.Get_raw()).toDouble());
+	ui.swizzle_x->setCurrentIndex(settings->value("Normal/swizzle_x", local_config.normal_swizzle.Get_x()).toInt());
+	ui.swizzle_y->setCurrentIndex(settings->value("Normal/swizzle_y", local_config.normal_swizzle.Get_y()).toInt());
+
+	ui.Settings_curvature_scale->setValue(settings->value("Curvature/scale", local_config.curvature_scale.Get_raw()).toDouble());
+	ui.Settings_curvature_mode->setCurrentIndex(settings->value("Curvature/mode", local_config.curvature_mode.Get_raw()).toInt());
+
+	ui.Settings_ao_scale->setValue(settings->value("AO/scale", local_config.ao_scale.Get_raw()).toDouble());
+	ui.Settings_ao_samples->setValue(settings->value("AO/samples", local_config.ao_samples.Get_raw()).toDouble());
+	ui.Settings_ao_distance->setValue(settings->value("AO/distance", local_config.ao_distance.Get_raw()).toDouble());
+	ui.Settings_ao_power->setValue(settings->value("AO/power", local_config.ao_power.Get_raw()).toDouble());
+
+	for (int i = 0; i < NumMaps; i++) {
+		MapInfoArray[i].EnableSetting->setChecked(settings->value(MapInfoArray[i].SettingCategory + QStringLiteral("/enable"), local_config.enabled_maps[i].Get()).toBool());
+		MapInfoArray[i].ExportFormat->setCurrentIndex(settings->value(MapInfoArray[i].SettingCategory + QStringLiteral("/format"), local_config.export_settings[i].Get_format()).toInt());
+		MapInfoArray[i].ExportDepth->setCurrentIndex(settings->value(MapInfoArray[i].SettingCategory + QStringLiteral("/bitdepth"), local_config.export_settings[i].Get_bitdepth()).toInt());
+		MapInfoArray[i].ExportSuffix->setText(settings->value(MapInfoArray[i].SettingCategory + QStringLiteral("/suffix"), QString::fromStdString(local_config.export_settings[i].Get_suffix())).toString());
+	}
+}
+
+void fNablaGUI::on_actionSaveSettings_clicked() {
+
+	settings->setValue("Global/window", ui.Settings_high_pass->Value());
+
+	settings->setValue("Displacement/colormap", ui.Settings_displacement_mode->currentIndex());
+
+	settings->setValue("Normal/scale", ui.Settings_normal_scale->Value());
+	settings->setValue("Normal/swizzle_x", ui.swizzle_x->currentIndex());
+	settings->setValue("Normal/swizzle_y", ui.swizzle_y->currentIndex());
+
+	settings->setValue("Curvature/scale", ui.Settings_curvature_scale->Value());
+	settings->setValue("Curvature/mode", ui.Settings_curvature_mode->currentIndex());
+
+	settings->setValue("AO/scale", ui.Settings_ao_scale->Value());
+	settings->setValue("AO/samples", ui.Settings_ao_samples->Value());
+	settings->setValue("AO/distance", ui.Settings_ao_distance->Value());
+	settings->setValue("AO/power", ui.Settings_ao_power->Value());
+
+	for (int i = 0; i < NumMaps; i++) {
+		settings->setValue(MapInfoArray[i].SettingCategory + QStringLiteral("/enable"), MapInfoArray[i].EnableSetting->isChecked());
+		settings->setValue(MapInfoArray[i].SettingCategory + QStringLiteral("/format"), MapInfoArray[i].ExportFormat->currentIndex());
+		settings->setValue(MapInfoArray[i].SettingCategory + QStringLiteral("/bitdepth"), MapInfoArray[i].ExportDepth->currentIndex());
+		settings->setValue(MapInfoArray[i].SettingCategory + QStringLiteral("/suffix"), MapInfoArray[i].ExportSuffix->text());
+	}
+}
+
+//ADDITIONAL UI FUNCTIONS
+
+void fNablaGUI::Zoom(float factor, bool fit) {
+	double OldScale = UIScaleFactor;
+
+	if (fit)
+	{
+		UIScaleFactor = std::min((float)MapInfoArray[0].DisplayScrollArea->height() / (float)Maps[0]->Mat.rows, (float)MapInfoArray[0].DisplayScrollArea->width() / (float)Maps[0]->Mat.cols);
+	}
+	else {
+		UIScaleFactor *= factor;
+	}
+
+	QScrollArea* RefScrollArea = MapInfoArray[0].DisplayScrollArea;
+
+	QPointF Pivot = RefScrollArea->pos() + QPointF(RefScrollArea->size().width() / 2.0, RefScrollArea->size().height() / 2.0);
+	QPointF ScrollbarPos = QPointF(RefScrollArea->horizontalScrollBar()->value(), RefScrollArea->verticalScrollBar()->value());
+	QPointF DeltaToPos = Pivot / OldScale - RefScrollArea->pos() / OldScale;
+	QPointF Delta = DeltaToPos * UIScaleFactor - DeltaToPos * OldScale;
+
+	RedrawAll();
+
+	RefScrollArea->horizontalScrollBar()->setValue(ScrollbarPos.x() + Delta.x());
+	RefScrollArea->verticalScrollBar()->setValue(ScrollbarPos.y() + Delta.y());
+
+	ui.actionZoom_In->setEnabled(UIScaleFactor < 10.0); //disable zoom in at 1000%
+	ui.actionZoom_Out->setEnabled(UIScaleFactor > 0.1); //disable zoom out at 10%
+}
+
+void fNablaGUI::SetLoadedState(bool loaded) {
+	ui.actionClear->setEnabled(loaded);
+	ui.actionExport_All->setEnabled(loaded);
+	CheckAnyExportSelected();
+	ui.actionFit_Window->setEnabled(loaded);
+	ui.actionZoom_In->setEnabled(loaded);
+	ui.actionZoom_Out->setEnabled(loaded);
+	LoadedState = loaded;
+}
+
+//LOADING
+void fNablaGUI::LoadMap(int i) {
+	//LOADING
+	QString fileName = QFileDialog::getOpenFileName(this,
+		QStringLiteral("Load ") + MapInfoArray[i].Name, "",
+		QStringLiteral("Image files (*.png *.tiff *.tif *.pbm);;All Files (*)"));
+	if (!fileName.isEmpty()) {
+		ui.Status->setText(QStringLiteral("Loading"));
+		if (input_map_type != -1)
+		{
+			ui.actionClear->trigger();
+		}
+		input_map_type = i;
+		input_image = cv::imread(fileName.toStdString(), Maps[input_map_type]->ReadFlags);
+		//--------------------------
+		//PROCESSING
+		ProcessInput();
+		//-------------------
+		//SET LOADED STATE
+		ui.actionFit_Window->trigger();
+		SetLoadedState(true);
+	}
 }
 
 //DISPLAY
-void fNablaGUI::UpdateDisplay(int i) {
-	cv::Mat mat_8bit = this->MapSlots[i].Map->Export(CV_8U);
+void fNablaGUI::Draw(int i) {
+	cv::Mat mat_8bit = Maps[i]->Export(CV_8U);
 	QPixmap pix;
 	if (mat_8bit.channels() == 3) {
 		pix = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_RGB888).rgbSwapped());
@@ -245,234 +407,46 @@ void fNablaGUI::UpdateDisplay(int i) {
 	else {
 		pix = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_Grayscale8));
 	}
-	if (this->UIScaleFactor != 1.0) {
-		pix = pix.scaled(QSize(mat_8bit.cols * this->UIScaleFactor, mat_8bit.rows * this->UIScaleFactor), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	if (UIScaleFactor != 1.0) {
+		pix = pix.scaled(QSize(mat_8bit.cols * UIScaleFactor, mat_8bit.rows * UIScaleFactor), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	}
-	this->MapSlots[i].DisplayLabel->setPixmap(pix);
-	this->MapSlots[i].DisplayLabel->adjustSize();
+	MapInfoArray[i].DisplayLabel->setPixmap(pix);
+	MapInfoArray[i].DisplayLabel->adjustSize();
 }
 
-//SETTINGS EVENTS
-
-void fNablaGUI::on_Settings_high_pass_valueChanged(double value) {
-	dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->integration_window = exp(-16.0 * value);
-	if (this->input_map_type != -1) {
-		this->ProcessInput();
-		for (int i = 0; i < this->NumMaps; i++) {
-			this->UpdateDisplay(i);
+void fNablaGUI::RedrawAll() {
+	for (int i = 0; i < NumMaps; i++) {
+		if (MapInfoArray[i].EnableSetting->isChecked() || i == input_map_type) {
+			Draw(i);
 		}
 	}
 }
-void fNablaGUI::on_Settings_depth_valueChanged(double value) {
-	for (int i = 0; i < this->NumMaps; i++) {
-		this->MapSlots[i].Map->scale = value; //broadcast depth setting to all maps
-	}
-	if (this->input_map_type != -1) {
-		this->ProcessInput();
-		for (int i = 0; i < this->NumMaps; i++) {
-			this->UpdateDisplay(i);
-		}
-	}
-}
-void fNablaGUI::on_Settings_displacement_mode_currentIndexChanged(int index) {
-	dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->mode = index;
-	if (this->input_map_type != -1) {
-		this->UpdateDisplay(fNablaEngine::DISPLACEMENT);
-	}
-}
-void fNablaGUI::on_Settings_curvature_sharpness_valueChanged(double value) {
-	dynamic_cast<fNablaEngine::CurvatureMap*>(this->MapSlots[fNablaEngine::CURVATURE].Map)->curvature_sharpness = value * value;
-	if (this->input_map_type != -1) {
-		this->ProcessInput();
-		for (int i = 0; i < this->NumMaps; i++) {
-			this->UpdateDisplay(i);
-		}
-	}
-}
-void fNablaGUI::on_Settings_curvature_mode_currentIndexChanged(int index) {
-	dynamic_cast<fNablaEngine::CurvatureMap*>(this->MapSlots[fNablaEngine::CURVATURE].Map)->mode = index;
-	if (this->input_map_type != -1) {
-		this->UpdateDisplay(fNablaEngine::CURVATURE);
-	}
-}
-void fNablaGUI::on_Settings_ao_power_valueChanged(double value) {
-	dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->ao_power = value * 5.0;
-	if (this->input_map_type != -1) {
-		START_PROGRESSBAR(2)
-		MILESTONE("Recalculating AO")
-		this->UpdateDisplay(fNablaEngine::AO); //just update since power is postprocess
-		MILESTONE("Done!")
-	}
-}
-void fNablaGUI::on_Settings_ao_distance_valueChanged(double value) {
-	dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->ao_distance = value;
-	if (this->input_map_type != -1) {
-		START_PROGRESSBAR(2)
-		MILESTONE("Recalculating AO")
-			dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->Compute(this->MapSlots[fNablaEngine::DISPLACEMENT].Map, this->MapSlots[fNablaEngine::NORMAL].Map);
-		this->UpdateDisplay(fNablaEngine::AO);
-		MILESTONE("Done!")
-	}
-}
-void fNablaGUI::on_Settings_ao_samples_valueChanged(double value) {
-	dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->ao_samples = int(value);
-	if (this->input_map_type != -1) {
-		START_PROGRESSBAR(2)
-		MILESTONE("Recalculating AO")
-		dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->Compute(this->MapSlots[fNablaEngine::DISPLACEMENT].Map, this->MapSlots[fNablaEngine::NORMAL].Map);
-		this->UpdateDisplay(fNablaEngine::AO);
-		MILESTONE("Done!")
-	}
-}
-void fNablaGUI::on_swizzle_updated() {
-	dynamic_cast<fNablaEngine::NormalMap*>(this->MapSlots[fNablaEngine::NORMAL].Map)->swizzle_xy_coordinates = cv::Scalar(pow(-1.0, this->ui.swizzle_x->currentIndex()), pow(-1.0, this->ui.swizzle_y->currentIndex()));
-	if (this->input_map_type != -1) {
-		this->ProcessInput();
-		for (int i = 0; i < this->NumMaps; i++) {
-			this->UpdateDisplay(i);
-		}
-	}
-}
-void fNablaGUI::on_WorkingResolution_currentIndexChanged(int index) {
-	if (this->input_map_type != -1) {
-		this->ProcessInput();
-		for (int i = 0; i < this->NumMaps; i++) {
-			this->UpdateDisplay(i);
-		}
-		this->ui.actionFit_Window->trigger();
-	}
-}
 
-//CLEAR AND EXIT
-void fNablaGUI::on_actionClear_triggered() {
-	this->input_map_type = -1;
-	this->ui.ProgressBar->setValue(0);
-	this->ui.Status->setText(QStringLiteral(""));
-	for (int i = 0; i < this->NumMaps; i++) {
-		this->MapSlots[i].Map->Mat.release();
-		this->MapSlots[i].Map->Spectrum.release();
-		this->MapSlots[i].DisplayLabel->setPixmap(this->DefaultImage);
-	}
-	this->SetLoadedState(false);
-}
-
-void fNablaGUI::SetLoadedState(bool loaded) {
-	this->ui.actionClear->setEnabled(loaded);
-	this->ui.actionExport_All->setEnabled(loaded);
-	this->CheckAnyExportSelected();
-	this->ui.actionFit_Window->setEnabled(loaded);
-	this->ui.actionZoom_In->setEnabled(loaded);
-	this->ui.actionZoom_Out->setEnabled(loaded);
-}
-
-void fNablaGUI::Zoom(float factor, bool fit) {
-	double OldScale = this->UIScaleFactor;
-
-	if (fit)
-	{
-		this->UIScaleFactor = std::min((float)this->MapSlots[0].DisplayScrollArea->height() / (float)this->MapSlots[0].Map->Mat.rows, (float)this->MapSlots[0].DisplayScrollArea->width() / (float)this->MapSlots[0].Map->Mat.cols);
-	}
-	else {
-		this->UIScaleFactor *= factor;
-	}
-
-	QScrollArea* RefScrollArea = this->MapSlots[0].DisplayScrollArea;
-
-	QPointF Pivot = RefScrollArea->pos() + QPointF(RefScrollArea->size().width() / 2.0, RefScrollArea->size().height() / 2.0);
-	QPointF ScrollbarPos = QPointF(RefScrollArea->horizontalScrollBar()->value(), RefScrollArea->verticalScrollBar()->value());
-	QPointF DeltaToPos = Pivot / OldScale - RefScrollArea->pos() / OldScale;
-	QPointF Delta = DeltaToPos * this->UIScaleFactor - DeltaToPos * OldScale;
-
-	for (int i = 0; i < this->NumMaps; i++) {
-		this->UpdateDisplay(i);
-	}
-
-	RefScrollArea->horizontalScrollBar()->setValue(ScrollbarPos.x() + Delta.x());
-	RefScrollArea->verticalScrollBar()->setValue(ScrollbarPos.y() + Delta.y());
-
-	this->ui.actionZoom_In->setEnabled(this->UIScaleFactor < 10.0); //disable zoom in at 1000%
-	this->ui.actionZoom_Out->setEnabled(this->UIScaleFactor > 0.1); //disable zoom out at 10%
-}
-
-//LOADING
-void fNablaGUI::LoadMap(int i) {
-	//LOADING
-	QString fileName = QFileDialog::getOpenFileName(this,
-		QStringLiteral("Load ") + QString::fromStdString(this->MapSlots[i].Map->Name), "",
-		QStringLiteral("Image files (*.png *.tiff *.tif *.pbm);;All Files (*)"));
-	if (!fileName.isEmpty()) {
-		this->ui.Status->setText(QStringLiteral("Loading"));
-		if (this->input_map_type != -1)
-		{
-			this->ui.actionClear->trigger();
-		}
-		this->input_map_type = i;
-		this->input_image = cv::imread(fileName.toStdString(), this->MapSlots[this->input_map_type].Map->ReadFlags);
-		//--------------------------
-		//PROCESSING
-		this->ProcessInput();
-		//-------------------
-		//SET LOADED STATE
-		this->ui.actionFit_Window->trigger();
-		this->SetLoadedState(true);
-	}
+void fNablaGUI::ReprocessAll() {
+	ProcessInput();
+	RedrawAll();
 }
 
 //PROCESSSING
 
 void fNablaGUI::ProcessInput(bool override_work_res) {
-	START_PROGRESSBAR(4)
+	double scale_factor = (override_work_res ? 1.0 : WorkingScaleFactor);
 
-	MILESTONE("Allocating memory")
+	Maps[input_map_type]->Import(input_image, scale_factor);
 
-	double scale_factor = 1.0;
+	int compute_plan = 1 << (input_map_type + fNablaEngine::NUM_OUTPUTS) |
+		MapInfoArray[0].EnableSetting->isChecked() << fNablaEngine::DISPLACEMENT |
+		MapInfoArray[1].EnableSetting->isChecked() << fNablaEngine::NORMAL |
+		MapInfoArray[2].EnableSetting->isChecked() << fNablaEngine::CURVATURE |
+		MapInfoArray[3].EnableSetting->isChecked() << fNablaEngine::AO;
 
-	if (!(override_work_res) && !(this->ui.WorkingResolution->currentIndex() == 0)) {
-		scale_factor = exp(-log(2.0) * double(this->ui.WorkingResolution->currentIndex()));
-	}
-
-	this->MapSlots[this->input_map_type].Map->Import(this->input_image, scale_factor);
-	const cv::Size shape = this->MapSlots[this->input_map_type].Map->Mat.size();
-
-	for (int i = 0; i < this->NumMaps; i++) {
-		if (i != this->input_map_type) {
-			this->MapSlots[i].Map->Mat = cv::Mat(shape, this->MapSlots[i].Map->Type);
-		}
-	}
-
-	cv::Mat* spectrums[3] = {
-		this->MapSlots[fNablaEngine::DISPLACEMENT].Map->AllocateSpectrum(),
-		this->MapSlots[fNablaEngine::NORMAL].Map->AllocateSpectrum(),
-		this->MapSlots[fNablaEngine::CURVATURE].Map->AllocateSpectrum(),
-	};
-
-	MILESTONE("Processing outputs")
-
-	int compute_plan = 1 << (this->input_map_type + fNablaEngine::NUM_OUTPUTS) | fNablaEngine::OUTPUT_MASK; //all outputs
-
-	this->MapSlots[this->input_map_type].Map->Normalize();
-	this->MapSlots[this->input_map_type].Map->CalculateSpectrum();
-
-	fNablaEngine::ComputeSpectrums(
-		spectrums,
-		shape,
-		compute_plan,
-		dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->integration_window,
-		dynamic_cast<fNablaEngine::CurvatureMap*>(this->MapSlots[fNablaEngine::CURVATURE].Map)->curvature_sharpness,
-		scale_factor
-	);
-
-	for (int i = 0; i < 3; i++) {
-		this->MapSlots[i].Map->ReconstructFromSpectrum();
-		this->MapSlots[i].Map->Normalize();
-	}
-	MILESTONE("Calculating ambient occlusion");
-
-	dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(this->MapSlots[fNablaEngine::AO].Map)->Compute(this->MapSlots[fNablaEngine::DISPLACEMENT].Map, this->MapSlots[fNablaEngine::NORMAL].Map);
-
-	//-------------------
-	MILESTONE("Done!");
+	fNablaEngine::Compute(Maps, compute_plan, local_config, scale_factor);
 }
+
+void fNablaGUI::Compute_AO() {
+	dynamic_cast<fNablaEngine::AmbientOcclusionMap*>(Maps[fNablaEngine::AO].get())->Compute(Maps[fNablaEngine::DISPLACEMENT], Maps[fNablaEngine::NORMAL]);
+}
+
 
 //EXPORTING
 
@@ -484,19 +458,16 @@ void fNablaGUI::Export(bool ExportAll) {
 		tr("All Files (*)")); //we don't care about extension
 	QFileInfo fileInfo(fileName);
 	if (!fileName.isEmpty()){
-		if (this->ui.WorkingResolution->currentIndex() != 0)
+		if (ui.WorkingResolution->currentIndex() != 0)
 		{
-			this->ProcessInput(true); //process at full res
+			ProcessInput(true); //process at full res
 		}
-		for (int i = 0; i < this->NumMaps; i++) {
-			if ((ExportAll || this->MapSlots[i].ExportAction->isChecked())) {
-				if (this->MapSlots[i].ExportSuffix->hasAcceptableInput())
+		for (int i = 0; i < NumMaps; i++) {
+			if ((ExportAll || MapInfoArray[i].EnableSetting->isChecked())) {
+				if (MapInfoArray[i].ExportSuffix->hasAcceptableInput())
 				{
-					QString output = fileInfo.absolutePath() + "/" + fileInfo.baseName() + this->MapSlots[i].ExportSuffix->text() + "." + this->MapSlots[i].ExportFormat->currentText();
-					int displacement_colormap = dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->mode;
-					dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->mode = 0;
-					cv::Mat save_img = this->MapSlots[i].Map->Export(int(-2.5 * (double)this->MapSlots[i].ExportDepth->currentIndex() + 5.0)); //mapping of my index to the corresponding CV_Depth's
-					dynamic_cast<fNablaEngine::DisplacementMap*>(this->MapSlots[fNablaEngine::DISPLACEMENT].Map)->mode = displacement_colormap;
+					QString output = fileInfo.absolutePath() + "/" + fileInfo.baseName() + QString::fromStdString(local_config.export_settings[i].Get_full_suffix());
+					cv::Mat save_img = Maps[i]->Export(local_config.export_settings[i].Get_CVdepth(), i!=0); //don't postprocess the displacement (colormap)
 					cv::imwrite(output.toStdString(), save_img);
 					MapsSaved.append(output + QString("\n"));
 				}
@@ -512,8 +483,4 @@ void fNablaGUI::Export(bool ExportAll) {
 			QMessageBox::information(this, "Exported:", MapsSaved);
 		}
 	}
-}
-
-void fNablaGUI::on_actionAbout_fNabla_triggered() {
-	QMessageBox::about(this, "About fNabla", "<b>fNabla</b><br><br>Version 1.0<br>fNabla is a tool for conversion between various mesh maps<br>Copyright (C) 2020 Borja Franco Garcia");
 }
