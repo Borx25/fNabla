@@ -119,6 +119,8 @@ void fNablaBatch::Task::run(){
 
 	const QStringList suffixes = QStringList() << Settings_displacement_suffix << Settings_normal_suffix << Settings_curvature_suffix << Settings_ao_suffix;
 
+	auto local_config = fNablaEngine::Config();
+
 	QDirIterator inputs(inputDir.absoluteFilePath(), QStringList() << "*.png" << "*.tiff" << "*.tif" << "*.pbm", QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
 	while (inputs.hasNext()) {
 		QFileInfo file(inputs.next());
@@ -135,10 +137,10 @@ void fNablaBatch::Task::run(){
 		if (input_type >= 0) //skip if it doesn't contain any of out suffixes
 		{
 			fNablaEngine::MeshMap* Maps[4] = {
-				new fNablaEngine::DisplacementMap(),
-				new fNablaEngine::NormalMap(),
-				new fNablaEngine::CurvatureMap(),
-				new fNablaEngine::AmbientOcclusionMap(),
+				new fNablaEngine::DisplacementMap(local_config),
+				new fNablaEngine::NormalMap(local_config),
+				new fNablaEngine::CurvatureMap(local_config),
+				new fNablaEngine::AmbientOcclusionMap(local_config),
 			};
 
 			cv::Mat input_image = cv::imread(file.absoluteFilePath().toStdString(), Maps[input_type]->ReadFlags);
@@ -166,8 +168,9 @@ void fNablaBatch::Task::run(){
 				spectrums,
 				shape,
 				compute_plan,
-				Settings_high_pass,
-				Settings_curvature_sharpness,
+				local_config,
+				//Settings_high_pass,
+				//Settings_curvature_sharpness,
 				1.0
 			);
 

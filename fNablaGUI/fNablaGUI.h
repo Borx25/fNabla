@@ -14,12 +14,18 @@
 #include <QStandardItemModel>
 #include <QSettings>
 
-struct MapSlot {
-	fNablaEngine::MeshMap* Map;
+//STD
+#include <memory>
+#include <array>
+
+struct MapInfo {
+	QString Name;
+	QString SettingCategory;
 	QLineEdit* ExportSuffix;
 	QComboBox* ExportDepth;
 	QComboBox* ExportFormat;
 	QAction* ExportAction;
+	QCheckBox* EnableSetting;
 	QLabel* DisplayLabel;
 	QScrollArea* DisplayScrollArea;
 };
@@ -31,24 +37,8 @@ class fNablaGUI : public QMainWindow
 public:
 	fNablaGUI(QWidget* parent = Q_NULLPTR);
 
-	static const int NumMaps = fNablaEngine::NUM_OUTPUTS;
-	MapSlot MapSlots [NumMaps];
-
 private slots:
-
-	void on_actionClear_triggered();
-	void on_actionAbout_fNabla_triggered();
 	void on_actionSaveSettings_clicked();
-
-	void on_Settings_high_pass_valueChanged(double value);
-	void on_Settings_depth_valueChanged(double value);
-	void on_Settings_displacement_mode_currentIndexChanged(int index);
-	void on_Settings_curvature_sharpness_valueChanged(double value);
-	void on_Settings_curvature_mode_currentIndexChanged(int index);
-	void on_Settings_ao_power_valueChanged(double value);
-	void on_Settings_ao_distance_valueChanged(double value);
-	void on_Settings_ao_samples_valueChanged(double value);
-	void on_WorkingResolution_currentIndexChanged(int index);
 
 protected:
 	void closeEvent(QCloseEvent* event) override;
@@ -56,18 +46,31 @@ protected:
 private:
 	Ui::fNablaGUIClass ui;
 	QPixmap DefaultImage;
-	QRegExpValidator* SuffixValidator;
-	QSettings* settings;
-	cv::Mat input_image;
-	int input_map_type = -1;
+	static const int NumMaps = fNablaEngine::NUM_OUTPUTS;
+	std::array<MapInfo, NumMaps>MapInfoArray;
 
-	void on_swizzle_updated();
 	void CheckAnyExportSelected();
-	void ProcessInput(bool override_work_res = false);
-	void LoadMap(int i);
-	void Export(bool ExportAll);
-	void UpdateDisplay(int i);
 	void SetLoadedState(bool loaded);
+	bool LoadedState = false;
 	void Zoom(float factor, bool fit = false);
 	float UIScaleFactor = 1.0f;
+
+	void LoadSettings();
+	std::unique_ptr<QSettings> settings;
+	fNablaEngine::Config local_config;
+
+	cv::Mat input_image;
+	int input_map_type = -1;
+	double WorkingScaleFactor = 1.0;
+	fNablaEngine::MeshMapArray Maps;
+
+	void LoadMap(int i);
+	void ProcessInput(bool override_work_res = false);
+	void Compute_AO();
+	void Draw(int i);
+	void RedrawAll();
+	void ReprocessAll();
+
+	void Export(bool ExportAll);
+
 };

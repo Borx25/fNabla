@@ -14,12 +14,18 @@
     <ClCompile Include="fNablaEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fNablaConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fNablaEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fNablaEngineCuda.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fNablaConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -43,12 +43,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\opencv\build\include;C:\Users\borja\source\repos\fNabla\fNablaEngine;C:\Users\borja\source\repos\fNabla\fNablaResources;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\opencv\build\include;C:\Users\borja\source\repos\fNabla\fNablaEngine;C:\Users\borja\source\repos\fNabla\fNablaResources;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
@@ -83,7 +83,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Version>0.1</Version>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world430d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world440d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>"C:\Qt\5.9.9\msvc2017_64\bin\windeployqt.exe" "$(OutDir.TrimEnd('\'))" --$(Configuration.toLower())</Command>
@@ -107,7 +107,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world430.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world440.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
     <PostBuildEvent>

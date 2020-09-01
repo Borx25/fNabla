@@ -47,10 +47,10 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <LibraryPath>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\opencv\build\include;C:\Users\borja\source\repos\fNabla\fNablaEngine;C:\Users\borja\source\repos\fNabla\fNablaResources;$(IncludePath)</IncludePath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <IncludePath>C:\opencv\build\include;C:\Users\borja\source\repos\fNabla\fNablaEngine;C:\Users\borja\source\repos\fNabla\fNablaResources;$(IncludePath)</IncludePath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
     <LibraryPath>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -59,7 +59,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world430d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world440d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
     <PostBuildEvent>
@@ -72,7 +72,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;C:\Users\borja\source\repos\fNabla\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world430.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world440.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
     <PostBuildEvent>
