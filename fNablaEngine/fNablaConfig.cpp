@@ -1,57 +1,57 @@
 #include "fNablaConfig.h"
 
-fNablaEngine::Config_Elements::Boolean::Boolean(bool val) {
+fNablaEngine::Descriptor_Elements::Boolean::Boolean(bool val) {
 	Set(val);
 }
-void fNablaEngine::Config_Elements::Boolean::Set(bool val) {
+void fNablaEngine::Descriptor_Elements::Boolean::Set(bool val) {
 	m_val = val;
 }
-bool fNablaEngine::Config_Elements::Boolean::Get() {
+bool fNablaEngine::Descriptor_Elements::Boolean::Get() {
 	return m_val;
 }
 
-fNablaEngine::Config_Elements::ValidatedString::ValidatedString(std::string value, std::string regex) {
+fNablaEngine::Descriptor_Elements::ValidatedString::ValidatedString(std::string value, std::string regex) {
 	m_validate_regex = regex;
 	Set(value);
 }
 
-void fNablaEngine::Config_Elements::ValidatedString::Set(std::string new_value) {
+void fNablaEngine::Descriptor_Elements::ValidatedString::Set(std::string new_value) {
 	m_val = (std::regex_match(new_value, m_validate_regex) ? new_value : m_val);
 }
 
-std::string fNablaEngine::Config_Elements::ValidatedString::Get() {
+std::string fNablaEngine::Descriptor_Elements::ValidatedString::Get() {
 	return m_val;
 }
 
 
-fNablaEngine::Config_Elements::ChannelSign::ChannelSign(bool x, bool y) {
+fNablaEngine::Descriptor_Elements::ChannelSign::ChannelSign(bool x, bool y) {
 	Set(x, y);
 }
 
-void fNablaEngine::Config_Elements::ChannelSign::Set(bool x, bool y) {
+void fNablaEngine::Descriptor_Elements::ChannelSign::Set(bool x, bool y) {
 	m_x = x;
 	m_y = y;
 	m_val = cv::Scalar(pow(-1.0, x), pow(-1.0, y));
 }
 
-cv::Scalar fNablaEngine::Config_Elements::ChannelSign::Get() {
+cv::Scalar fNablaEngine::Descriptor_Elements::ChannelSign::Get() {
 	return m_val;
 }
 
-bool fNablaEngine::Config_Elements::ChannelSign::Get_x() {
+bool fNablaEngine::Descriptor_Elements::ChannelSign::Get_x() {
 	return m_x;
 }
 
-bool fNablaEngine::Config_Elements::ChannelSign::Get_y() {
+bool fNablaEngine::Descriptor_Elements::ChannelSign::Get_y() {
 	return m_y;
 }
 
-fNablaEngine::Config_Elements::Export::Export(int format_value, int bitdepth_value, std::string suffix_value) {
+fNablaEngine::Descriptor_Elements::Export::Export(int format_value, int bitdepth_value, std::string suffix_value) {
 	Set_format(format_value);
 	Set_bitdepth(bitdepth_value);
 	Set_suffix(suffix_value);
 }
-void fNablaEngine::Config_Elements::Export::Set_format(int new_value) {
+void fNablaEngine::Descriptor_Elements::Export::Set_format(int new_value) {
 	format.Set(new_value);
 	int validated_format = format.Get();
 	if (!IsDepthSupported[validated_format][bitdepth.Get()]) //we have a depth that's not supported by the new format
@@ -60,7 +60,7 @@ void fNablaEngine::Config_Elements::Export::Set_format(int new_value) {
 		bitdepth.Set(std::find(start_iter, IsDepthSupported[validated_format].end(), true) - start_iter); //set bitdepth to first(highest) compatible depth
 	}
 }
-void fNablaEngine::Config_Elements::Export::Set_bitdepth(int new_value) {
+void fNablaEngine::Descriptor_Elements::Export::Set_bitdepth(int new_value) {
 	bitdepth.Set(new_value);
 	int validated_bitdepth = bitdepth.Get();
 	if (!IsDepthSupported[format.Get()][validated_bitdepth]){ //we have a format that doesn't support the new bitdepth 
@@ -73,22 +73,22 @@ void fNablaEngine::Config_Elements::Export::Set_bitdepth(int new_value) {
 		}
 	}
 }
-void fNablaEngine::Config_Elements::Export::Set_suffix(std::string new_value) {
+void fNablaEngine::Descriptor_Elements::Export::Set_suffix(std::string new_value) {
 	suffix.Set(new_value);
 }
-int fNablaEngine::Config_Elements::Export::Get_format() {
+int fNablaEngine::Descriptor_Elements::Export::Get_format() {
 	return format.Get();
 }
-int fNablaEngine::Config_Elements::Export::Get_bitdepth() {
+int fNablaEngine::Descriptor_Elements::Export::Get_bitdepth() {
 	return bitdepth.Get();
 }
-int fNablaEngine::Config_Elements::Export::Get_CVdepth() {
+int fNablaEngine::Descriptor_Elements::Export::Get_CVdepth() {
 	return (int(-2.5 * (double)bitdepth.Get() + 5.0));
 }
-std::string fNablaEngine::Config_Elements::Export::Get_suffix() {
+std::string fNablaEngine::Descriptor_Elements::Export::Get_suffix() {
 	return suffix.Get();
 }
-std::string fNablaEngine::Config_Elements::Export::Get_full_suffix() {
+std::string fNablaEngine::Descriptor_Elements::Export::Get_full_suffix() {
 	return suffix.Get() + "." + Extensions[format.Get()];
 }
 

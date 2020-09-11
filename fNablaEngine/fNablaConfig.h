@@ -4,34 +4,22 @@
 #include <regex>
 #include <opencv2/core/core.hpp>
 #include <functional>
+#include <bitset>
 
 namespace fNablaEngine
 {
-	enum MapTypes {
+	enum NumMaps {
 		NUM_INPUTS = 3,
 		NUM_OUTPUTS = 4,
-
-		DISPLACEMENT = 0,
-		NORMAL = 1,
-		CURVATURE = 2,
-		AO = 3,
 	};
 
-	enum ComputeFlags
-	{
-		INPUT_MASK = ((1 << NUM_INPUTS) - 1) << NUM_OUTPUTS,
-		INPUT_DISPLACEMENT = 1 << (DISPLACEMENT + NUM_OUTPUTS),
-		INPUT_NORMAL = 1 << (NORMAL + NUM_OUTPUTS),
-		INPUT_CURVATURE = 1 << (CURVATURE + NUM_OUTPUTS),
-
-		OUTPUT_MASK = (1 << NUM_OUTPUTS) - 1,
-		OUTPUT_DISPLACEMENT = 1 << DISPLACEMENT,
-		OUTPUT_NORMAL = 1 << NORMAL,
-		OUTPUT_CURVATURE = 1 << CURVATURE,
-		OUTPUT_AO = 1 << AO,
-
-		OUTPUT_SURFACEMAPS = OUTPUT_DISPLACEMENT | OUTPUT_NORMAL | OUTPUT_CURVATURE,
+	enum MapTypes {
+		DISPLACEMENT,
+		NORMAL,
+		CURVATURE,
+		AO,
 	};
+
 
 	enum Colormap_types {
 		GRAYSCALE,
@@ -71,8 +59,34 @@ namespace fNablaEngine
 		{false, true, true}}
 	};
 
+	//enum ComputeFlags
+	//{
+	//	INPUT_MASK = ((1 << NUM_INPUTS) - 1) << NUM_OUTPUTS,
+	//	INPUT_DISPLACEMENT = 1 << (DISPLACEMENT + NUM_OUTPUTS),
+	//	INPUT_NORMAL = 1 << (NORMAL + NUM_OUTPUTS),
+	//	INPUT_CURVATURE = 1 << (CURVATURE + NUM_OUTPUTS),
 
-	namespace Config_Elements {
+	//	OUTPUT_MASK = (1 << NUM_OUTPUTS) - 1,
+	//	OUTPUT_DISPLACEMENT = 1 << DISPLACEMENT,
+	//	OUTPUT_NORMAL = 1 << NORMAL,
+	//	OUTPUT_CURVATURE = 1 << CURVATURE,
+	//	OUTPUT_AO = 1 << AO,
+
+	//	OUTPUT_SURFACEMAPS = OUTPUT_DISPLACEMENT | OUTPUT_NORMAL | OUTPUT_CURVATURE,
+	//};
+
+	//enum Bitsets {
+	//	SURFACEMAPS = (1 << DISPLACEMENT) | (1 << NORMAL) | (1 << CURVATURE),
+	//};
+
+	//class ComputeDescriptor {
+	//public:
+	//	std::bitset<NUM_INPUTS> Input;
+	//	std::bitset<NUM_OUTPUTS> Output;
+	//};
+
+
+	namespace Descriptor_Elements {
 
 		class __declspec(dllexport) Boolean {
 		public:
@@ -157,31 +171,40 @@ namespace fNablaEngine
 		};
 	}
 
-	struct __declspec(dllexport) Config {
+	struct __declspec(dllexport) Descriptor {
+		unsigned int Input;
+		std::bitset<NUM_OUTPUTS> Output;
+	};
+
+	struct __declspec(dllexport) Configuration {
+		//compute descriptor
+		//std::bitset<NUM_INPUTS> Input;
+		//unsigned int Input;
+		//std::bitset<NUM_OUTPUTS> Output;
 		//Global
-		Config_Elements::Numeric<double> integration_window{ 0.000001, 1.0, 1.0, [](double x) -> double { return exp(-16.0 * x); } };
+		Descriptor_Elements::Numeric<double> integration_window{ 0.000001, 1.0, 1.0, [](double x) -> double { return exp(-16.0 * x); } };
 		//Displacement
-		Config_Elements::Numeric<int> displacement_colormap{ 0, GRAYSCALE, _NUM_COLORMAPS };
+		Descriptor_Elements::Numeric<int> displacement_colormap{ 0, GRAYSCALE, _NUM_COLORMAPS };
 		//Normal
-		Config_Elements::Numeric<double> normal_scale{ 0.000001, 0.5, 1.0, [](double x) -> double { return x * 5.0; } };
-		Config_Elements::ChannelSign normal_swizzle{ 0, 0 };
+		Descriptor_Elements::Numeric<double> normal_scale{ 0.000001, 0.5, 1.0, [](double x) -> double { return x * 5.0; } };
+		Descriptor_Elements::ChannelSign normal_swizzle{ 0, 0 };
 		//Curvature
-		Config_Elements::Numeric<int> curvature_mode{ 0, CURVATURE_COMPLETE, _NUM_CURVATUREMODES };
-		Config_Elements::Numeric<double> curvature_scale{ 0.000001, 0.5, 1.0, [](double x) -> double { return x * 5.0; } };
+		Descriptor_Elements::Numeric<int> curvature_mode{ 0, CURVATURE_COMPLETE, _NUM_CURVATUREMODES };
+		Descriptor_Elements::Numeric<double> curvature_scale{ 0.000001, 0.5, 1.0, [](double x) -> double { return x * 5.0; } };
 		//AO
-		Config_Elements::Numeric<double> ao_scale{ 0.000001, 0.5, 1.0 };
-		Config_Elements::Numeric<int> ao_samples{ 8, 16, 128 };
-		Config_Elements::Numeric<double> ao_distance{ 0.000001, 0.35, 1.0};
-		Config_Elements::Numeric<double> ao_power{ 0.000001, 0.45, 1.0, [](double x) -> double { return x * 3.0; } };
+		Descriptor_Elements::Numeric<double> ao_scale{ 0.000001, 0.5, 1.0 };
+		Descriptor_Elements::Numeric<int> ao_samples{ 8, 16, 128 };
+		Descriptor_Elements::Numeric<double> ao_distance{ 0.000001, 0.35, 1.0};
+		Descriptor_Elements::Numeric<double> ao_power{ 0.000001, 0.45, 1.0, [](double x) -> double { return x * 3.0; } };
 		//Export
-		std::array<Config_Elements::Export, NUM_OUTPUTS>export_settings{ {
+		std::array<Descriptor_Elements::Export, NUM_OUTPUTS>export_settings{ {
 			{ TIFF, BIT32, "_displacement" },
 			{ PNG, BIT16, "_normal" },
 			{ PNG, BIT16, "_curvature" },
 			{ PNG, BIT16, "_ambient_occlusion" },
 		} };
 		//Enabled maps
-		std::array<Config_Elements::Boolean, NUM_OUTPUTS>enabled_maps{ {
+		std::array<Descriptor_Elements::Boolean, NUM_OUTPUTS>enabled_maps{ {
 			{true},
 			{true},
 			{true},

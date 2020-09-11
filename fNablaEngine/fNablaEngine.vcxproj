@@ -109,6 +109,9 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>fNablaEngine.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin\cudart32_110.dll" "$(TargetDir)" /i /d /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,6 +133,9 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>fNablaEngine.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin\cudart32_110.dll" "$(TargetDir)" /i /d /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -151,6 +157,9 @@
       <AdditionalDependencies>opencv_world440d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin\cudart64_110.dll" "$(TargetDir)" /i /d /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -177,6 +186,9 @@
       <AdditionalDependencies>opencv_world440.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>0.1</Version>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.0\bin\cudart64_110.dll" "$(TargetDir)" /i /d /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fNablaConfig.cpp" />

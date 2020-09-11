@@ -9,8 +9,32 @@
 #include <QtCore>
 #include "fNablaEngine.h" //Conversion Engine, includes OpenCV
 
+using namespace fNablaEngine;
+
 namespace fNablaBatch
 {
+	static const QStringList SettingCategory{
+	QStringLiteral("Displacement"),
+	QStringLiteral("Normal"),
+	QStringLiteral("Curvature"),
+	QStringLiteral("AO")
+	};
+
+	static const QStringList MapNames{
+		QStringLiteral("[DISPLACEMENT]"),
+		QStringLiteral("[NORMAL]"),
+		QStringLiteral("[CURVATURE]"),
+		QStringLiteral("[AMBIENT OCCLUSION]")
+	};
+
+	static const QStringList SupportedFormats{
+		QStringLiteral("*.png"),
+		QStringLiteral("*.tiff"),
+		QStringLiteral("*.tif"),
+		QStringLiteral("*.pbm")
+	};
+
+
 	class Task : public QObject
 	{
 		Q_OBJECT
