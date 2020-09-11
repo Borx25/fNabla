@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1658</width>
+    <width>1527</width>
     <height>1266</height>
    </rect>
   </property>
@@ -288,294 +288,183 @@ QCheckBox::indicator::checked {
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <property name="minimumSize">
-    <size>
-     <width>0</width>
-     <height>0</height>
-    </size>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0,2">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
     <item>
-     <widget class="QTabWidget" name="MapSelectTab">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+     <widget class="QFrame" name="DisplayArea">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
-      <property name="baseSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::North</enum>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <property name="elideMode">
-       <enum>Qt::ElideNone</enum>
-      </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
-      <property name="tabsClosable">
-       <bool>false</bool>
-      </property>
-      <property name="movable">
-       <bool>false</bool>
-      </property>
-      <property name="tabBarAutoHide">
-       <bool>false</bool>
-      </property>
-      <widget class="QWidget" name="Tab_Displacement">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>Displacement</string>
-       </attribute>
-       <layout class="QGridLayout" name="Tab_Height_Layout">
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea_Displacement">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+      <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1">
+       <item>
+        <widget class="QTabWidget" name="MapSelectTab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="currentIndex">
+          <number>3</number>
+         </property>
+         <widget class="QWidget" name="Tab_Displacement">
+          <attribute name="title">
+           <string>Displacement</string>
+          </attribute>
+          <layout class="QGridLayout" name="Tab_Height_Layout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="Tab_Normal">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+          <attribute name="title">
+           <string>Normal</string>
+          </attribute>
+          <layout class="QGridLayout" name="Tab_TSNormal_Layout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="Tab_Curvature">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="widgetResizable">
-           <bool>false</bool>
+          <attribute name="title">
+           <string>Curvature</string>
+          </attribute>
+          <layout class="QGridLayout" name="Tab_Curvature_Layout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="Tab_AO">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <attribute name="title">
+           <string>Ambient Occlusion</string>
+          </attribute>
+          <layout class="QGridLayout" name="Tab_AO_Layout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QScrollArea" name="DisplayScrollArea">
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <widget class="QLabel" name="DisplayLabel">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>47</y>
+            <width>1024</width>
+            <height>1024</height>
+           </rect>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="fNablaResources.qrc">:/fNablaResources/default.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
-          <widget class="QLabel" name="Label_Displacement">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>78</y>
-             <width>1000</width>
-             <height>1000</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="fNablaResources.qrc">:/fNablaResources/default.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="Tab_TSNormal">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>Normal</string>
-       </attribute>
-       <layout class="QGridLayout" name="Tab_TSNormal_Layout">
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea_TSNormal">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>false</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <widget class="QLabel" name="Label_TSNormal">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>78</y>
-             <width>1000</width>
-             <height>1000</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="fNablaResources.qrc">:/fNablaResources/default.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="Tab_Curvature">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>Curvature</string>
-       </attribute>
-       <layout class="QGridLayout" name="Tab_Curvature_Layout">
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea_Curvature">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>false</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <widget class="QLabel" name="Label_Curvature">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>78</y>
-             <width>1000</width>
-             <height>1000</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="fNablaResources.qrc">:/fNablaResources/default.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="Tab_AO">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>Ambient Occlusion</string>
-       </attribute>
-       <layout class="QGridLayout" name="Tab_AO_Layout">
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea_AO">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>false</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <widget class="QLabel" name="Label_AO">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>78</y>
-             <width>1000</width>
-             <height>1000</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="pixmap">
-            <pixmap resource="fNablaResources.qrc">:/fNablaResources/default.png</pixmap>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -710,14 +599,14 @@ QCheckBox::indicator::checked {
              </item>
              <item>
               <widget class="QCheckBox" name="Settings_displacement_enable">
+               <property name="toolTip">
+                <string>Toogle computation of Displacement Map (Shorcut: Alt+1)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
                <property name="shortcut">
-                <string>P</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
+                <string>Alt+1</string>
                </property>
               </widget>
              </item>
@@ -868,11 +757,14 @@ QCheckBox::indicator::checked {
              </item>
              <item>
               <widget class="QCheckBox" name="Settings_normal_enable">
+               <property name="toolTip">
+                <string>Toogle computation of Normal Map (Shorcut: Alt+2)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
-               <property name="checked">
-                <bool>true</bool>
+               <property name="shortcut">
+                <string>Alt+2</string>
                </property>
               </widget>
              </item>
@@ -1041,11 +933,14 @@ QCheckBox::indicator::checked {
              </item>
              <item>
               <widget class="QCheckBox" name="Settings_curvature_enable">
+               <property name="toolTip">
+                <string>Toogle computation of Curvature Map (Shorcut: Alt+3)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
-               <property name="checked">
-                <bool>true</bool>
+               <property name="shortcut">
+                <string>Alt+3</string>
                </property>
               </widget>
              </item>
@@ -1192,11 +1087,14 @@ QCheckBox::indicator::checked {
              </item>
              <item>
               <widget class="QCheckBox" name="Settings_ao_enable">
+               <property name="toolTip">
+                <string>Toogle computation of Ambient Occlusion Map (Shorcut: Alt+4)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
-               <property name="checked">
-                <bool>true</bool>
+               <property name="shortcut">
+                <string>Alt+4</string>
                </property>
               </widget>
              </item>
@@ -1386,7 +1284,7 @@ QCheckBox::indicator::checked {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1658</width>
+     <width>1527</width>
      <height>26</height>
     </rect>
    </property>
@@ -1405,18 +1303,12 @@ QCheckBox::indicator::checked {
     <property name="title">
      <string>Export</string>
     </property>
-    <addaction name="actionExport_Selected"/>
     <addaction name="actionExport_All"/>
     <addaction name="separator"/>
-    <addaction name="actionSetExport_Displacement"/>
-    <addaction name="actionSetExport_TSNormal"/>
-    <addaction name="actionSetExport_Curvature"/>
-    <addaction name="actionSetExport_AO"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuick_Displacement"/>
-    <addaction name="actionQuick_Normal"/>
-    <addaction name="actionQuick_Curvature"/>
-    <addaction name="actionQuick_AO"/>
+    <addaction name="actionExport_Displacement"/>
+    <addaction name="actionExport_Normal"/>
+    <addaction name="actionExport_Curvature"/>
+    <addaction name="actionExport_AO"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1438,26 +1330,12 @@ QCheckBox::indicator::checked {
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionExport_Selected">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Export Selected</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-   <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
-   </property>
-  </action>
   <action name="actionExport_All">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Export All</string>
+    <string>Export Enabled Maps</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -1543,108 +1421,62 @@ QCheckBox::indicator::checked {
     <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
-  <action name="actionQuick_Displacement">
-   <property name="text">
-    <string/>
-   </property>
-   <property name="shortcut">
-    <string>Alt+1</string>
-   </property>
-   <property name="visible">
+  <action name="actionExport_Displacement">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-  </action>
-  <action name="actionQuick_Normal">
    <property name="text">
-    <string/>
+    <string>Displacement</string>
    </property>
    <property name="shortcut">
-    <string>Alt+2</string>
+    <string>Ctrl+1</string>
    </property>
-   <property name="visible">
-    <bool>false</bool>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
-  <action name="actionQuick_Curvature">
+  <action name="actionExport_Normal">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string/>
+    <string>Tangent Space Normal</string>
    </property>
    <property name="shortcut">
-    <string>Alt+3</string>
+    <string>Ctrl+2</string>
    </property>
-   <property name="visible">
-    <bool>false</bool>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
-  <action name="actionQuick_AO">
+  <action name="actionExport_Curvature">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string/>
+    <string>Curvature</string>
    </property>
    <property name="shortcut">
-    <string>Alt+4</string>
+    <string>Ctrl+3</string>
    </property>
-   <property name="visible">
-    <bool>false</bool>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
-  <actiongroup name="actionSetExportGroup">
-   <action name="actionSetExport_Displacement">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>Displacement</string>
-    </property>
-    <property name="shortcut">
-     <string>Ctrl+1</string>
-    </property>
-    <property name="shortcutContext">
-     <enum>Qt::ApplicationShortcut</enum>
-    </property>
-   </action>
-   <action name="actionSetExport_TSNormal">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>Tangent Space Normal</string>
-    </property>
-    <property name="shortcut">
-     <string>Ctrl+2</string>
-    </property>
-    <property name="shortcutContext">
-     <enum>Qt::ApplicationShortcut</enum>
-    </property>
-   </action>
-   <action name="actionSetExport_Curvature">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>Curvature</string>
-    </property>
-    <property name="shortcut">
-     <string>Ctrl+3</string>
-    </property>
-    <property name="shortcutContext">
-     <enum>Qt::ApplicationShortcut</enum>
-    </property>
-   </action>
-   <action name="actionSetExport_AO">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>Ambient Occlusion</string>
-    </property>
-    <property name="shortcut">
-     <string>Ctrl+4</string>
-    </property>
-    <property name="shortcutContext">
-     <enum>Qt::ApplicationShortcut</enum>
-    </property>
-   </action>
-  </actiongroup>
+  <action name="actionExport_AO">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ambient Occlusion</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
   <actiongroup name="actionLoadGroup">
    <action name="actionLoad_Displacement">
     <property name="text">
@@ -1652,6 +1484,9 @@ QCheckBox::indicator::checked {
     </property>
     <property name="shortcut">
      <string>Ctrl+O</string>
+    </property>
+    <property name="shortcutContext">
+     <enum>Qt::ApplicationShortcut</enum>
     </property>
    </action>
    <action name="actionLoad_TSNormal">
@@ -1661,6 +1496,9 @@ QCheckBox::indicator::checked {
     <property name="shortcut">
      <string>Ctrl+Shift+O</string>
     </property>
+    <property name="shortcutContext">
+     <enum>Qt::ApplicationShortcut</enum>
+    </property>
    </action>
    <action name="actionLoad_Curvature">
     <property name="text">
@@ -1668,6 +1506,9 @@ QCheckBox::indicator::checked {
     </property>
     <property name="shortcut">
      <string>Ctrl+Alt+Shift+O</string>
+    </property>
+    <property name="shortcutContext">
+     <enum>Qt::ApplicationShortcut</enum>
     </property>
    </action>
   </actiongroup>
@@ -1681,7 +1522,6 @@ QCheckBox::indicator::checked {
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>MapSelectTab</tabstop>
   <tabstop>swizzle_x</tabstop>
   <tabstop>swizzle_y</tabstop>
  </tabstops>

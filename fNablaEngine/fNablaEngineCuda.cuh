@@ -1,8 +1,10 @@
 #pragma once
 
+//cuda
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
+//Opencv
 #include <opencv2/core/core.hpp>
 
 
@@ -32,10 +34,9 @@ namespace fNablaEngineCuda
 		int height,
 		int step_displacement,
 		int step_normal,
-		int step_samples,
 		int step_out,
 		const int samples,
-		const int radius,
+		const double radius,
 		const double depth
 	);
 }

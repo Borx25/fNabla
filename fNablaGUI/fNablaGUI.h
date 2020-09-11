@@ -18,6 +18,8 @@
 #include <memory>
 #include <array>
 
+using namespace fNablaEngine;
+
 struct MapInfo {
 	QString Name;
 	QString SettingCategory;
@@ -26,8 +28,9 @@ struct MapInfo {
 	QComboBox* ExportFormat;
 	QAction* ExportAction;
 	QCheckBox* EnableSetting;
-	QLabel* DisplayLabel;
-	QScrollArea* DisplayScrollArea;
+	QPixmap Pixmap;
+	//QLabel* DisplayLabel;
+	//QScrollArea* DisplayScrollArea;
 };
 
 class fNablaGUI : public QMainWindow
@@ -44,33 +47,32 @@ protected:
 	void closeEvent(QCloseEvent* event) override;
 
 private:
-	Ui::fNablaGUIClass ui;
-	QPixmap DefaultImage;
-	static const int NumMaps = fNablaEngine::NUM_OUTPUTS;
-	std::array<MapInfo, NumMaps>MapInfoArray;
-
-	void CheckAnyExportSelected();
 	void SetLoadedState(bool loaded);
-	bool LoadedState = false;
 	void Zoom(float factor, bool fit = false);
-	float UIScaleFactor = 1.0f;
 
 	void LoadSettings();
+
+	void LoadManager(int i);
+	void ProcessInput(bool override_work_res = false);
+	void ComputeMap(int i);
+	void UpdatePixmap(int i);
+	void RedrawAll();
+	void UpdateLabel();
+
+	void ExportManager(std::bitset<NUM_OUTPUTS> map_selection);
+
+	Ui::fNablaGUIClass ui;
+	float UIScaleFactor = 1.0f;
+	double WorkingScaleFactor = 1.0;
+	bool LoadedState = false;
+
+	QPixmap DefaultImage;
+	std::array<MapInfo, NUM_OUTPUTS>MapInfoArray;
 	std::unique_ptr<QSettings> settings;
-	fNablaEngine::Config local_config;
+
+	Configuration configuration;
+	Descriptor global_descriptor;
 
 	cv::Mat input_image;
-	int input_map_type = -1;
-	double WorkingScaleFactor = 1.0;
-	fNablaEngine::MeshMapArray Maps;
-
-	void LoadMap(int i);
-	void ProcessInput(bool override_work_res = false);
-	void Compute_AO();
-	void Draw(int i);
-	void RedrawAll();
-	void ReprocessAll();
-
-	void Export(bool ExportAll);
-
+	MeshMapArray Maps;
 };
