@@ -13,28 +13,6 @@ using namespace fNablaEngine;
 
 namespace fNablaBatch
 {
-	static const QStringList SettingCategory{
-	QStringLiteral("Displacement"),
-	QStringLiteral("Normal"),
-	QStringLiteral("Curvature"),
-	QStringLiteral("AO")
-	};
-
-	static const QStringList MapNames{
-		QStringLiteral("[DISPLACEMENT]"),
-		QStringLiteral("[NORMAL]"),
-		QStringLiteral("[CURVATURE]"),
-		QStringLiteral("[AMBIENT OCCLUSION]")
-	};
-
-	static const QStringList SupportedFormats{
-		QStringLiteral("*.png"),
-		QStringLiteral("*.tiff"),
-		QStringLiteral("*.tif"),
-		QStringLiteral("*.pbm")
-	};
-
-
 	class Task : public QObject
 	{
 		Q_OBJECT
@@ -42,9 +20,9 @@ namespace fNablaBatch
 		Task(QObject* parent = 0) : QObject(parent) {}
 
 	public slots:
-		void run();
+		void Run();
 
 	signals:
-		void finished();
+		void Finished();
 	};
 }
