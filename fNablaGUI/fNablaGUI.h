@@ -29,8 +29,6 @@ struct MapInfo {
 	QAction* ExportAction;
 	QCheckBox* EnableSetting;
 	QPixmap Pixmap;
-	//QLabel* DisplayLabel;
-	//QScrollArea* DisplayScrollArea;
 };
 
 class fNablaGUI : public QMainWindow
@@ -53,6 +51,7 @@ private:
 	void LoadSettings();
 
 	void LoadManager(int i);
+	void MonitorProgressAndWait(ConversionTask& conversion);
 	void ProcessInput(bool override_work_res = false);
 	void ComputeMap(int i);
 	void UpdatePixmap(int i);
@@ -65,6 +64,7 @@ private:
 	float UIScaleFactor = 1.0f;
 	double WorkingScaleFactor = 1.0;
 	bool LoadedState = false;
+	bool HasGPU = false;
 
 	QPixmap DefaultImage;
 	std::array<MapInfo, NUM_OUTPUTS>MapInfoArray;
