@@ -1,4 +1,0 @@
-C:\Users\borja\source\repos\fNabla\fSettingWidgetPlugin\x64\Debug\fCustomWidgetsPlugin.dll.lastcodeanalysissucceeded
-C:\Users\borja\source\repos\fNabla\fSettingWidgetPlugin\x64\Debug\NativeCodeAnalysis.read.1.tlog
-C:\Users\borja\source\repos\fNabla\fSettingWidgetPlugin\x64\Debug\fCustomWidgetsPlugin.dll
-C:\Users\borja\source\repos\fNabla\fSettingWidgetPlugin\x64\Debug\fCustomWidgetsPlugin.pdb
