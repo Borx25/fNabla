@@ -74,5 +74,5 @@ private:
 	Descriptor global_descriptor;
 
 	cv::Mat input_image;
-	MeshMapArray Maps;
+	TextureSet Maps;
 };

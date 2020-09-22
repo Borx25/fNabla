@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>fNablaGUIClass</class>
  <widget class="QMainWindow" name="fNablaGUIClass">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -102,6 +105,14 @@ QTabBar::tab:selected {
 }
 QTabBar::tab:!selected {
     margin-top: 4px; /* make non-selected tabs look smaller */
+}
+QTabBar::tab:disabled {
+	color: rgb(100, 100, 100);
+    background: rgb(60, 60, 60);
+	border-top-color: rgb(80, 80, 80);
+	border-right-color: rgb(80, 80, 80);
+	border-left-color: rgb(80, 80, 80);
+    border-bottom-color: rgb(80, 80, 80);
 }
 /* SLIDER */
 QSlider::groove:horizontal {
@@ -300,6 +311,9 @@ QCheckBox::indicator::checked {
       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,1">
        <item>
         <widget class="QTabWidget" name="MapSelectTab">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -322,9 +336,15 @@ QCheckBox::indicator::checked {
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="Tab_Displacement">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <attribute name="title">
            <string>Displacement</string>
           </attribute>
@@ -450,7 +470,7 @@ QCheckBox::indicator::checked {
           <property name="geometry">
            <rect>
             <x>4</x>
-            <y>96</y>
+            <y>104</y>
             <width>1024</width>
             <height>1024</height>
            </rect>
@@ -1427,6 +1447,9 @@ QCheckBox::indicator::checked {
    </property>
   </action>
   <action name="actionCycle_Map">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Cycle Map</string>
    </property>

@@ -6,7 +6,9 @@
 #include <QTextStream>
 #include <QSettings>
 #include <QRegExpValidator>
-#include <QtCore>
+#include <QDirIterator>
+#include <QTimer>
+
 #include "fNablaEngine.h" //Conversion Engine, includes OpenCV
 
 using namespace fNablaEngine;

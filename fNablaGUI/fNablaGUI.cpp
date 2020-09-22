@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]){
 	QApplication app(argc, argv);
 	QCoreApplication::setApplicationName("fNabla");
-	QCoreApplication::setOrganizationName("fNabla");
+	QCoreApplication::setOrganizationName("BorjaFranco");
 	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 
@@ -112,11 +112,12 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 						Maps[i]->Mat.release();
 					}
 					MapInfoArray[i].Pixmap = DefaultImage;
-				}
-				if (ui.MapSelectTab->currentIndex() == i) {
-					UpdateLabel();
+					if (ui.MapSelectTab->currentIndex() == i) {
+						ui.actionCycle_Map->trigger();
+					}
 				}
 			}
+			ui.MapSelectTab->setTabEnabled(i, checked);
 		});
 
 		QObject::connect(MapInfoArray[i].ExportDepth, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
@@ -153,7 +154,13 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 		Zoom(1.0, true);
 	});
 	QObject::connect(ui.actionCycle_Map, &QAction::triggered, this, [this]() {
-		ui.MapSelectTab->setCurrentIndex((ui.MapSelectTab->currentIndex() + 1) % ui.MapSelectTab->count());
+		int start = ui.MapSelectTab->currentIndex();
+		for (int i = (start + 1) % ui.MapSelectTab->count(); i != start; i = (i + 1) % ui.MapSelectTab->count()) {
+			if (ui.MapSelectTab->isTabEnabled(i)) {
+				ui.MapSelectTab->setCurrentIndex(i);
+				break;
+			}
+		}
 	});
 	QObject::connect(ui.actionLoad_Displacement, &QAction::triggered, this, [this]() {
 		LoadManager(DISPLACEMENT);
@@ -174,7 +181,7 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 		SetLoadedState(false);
 	});
 	QObject::connect(ui.actionAbout_fNabla, &QAction::triggered, this, [this]() {
-		QMessageBox::about(this, "About fNabla", "<b>fNabla</b><br><br>Version 1.0<br>fNabla is a tool for conversion between height, normal, curvature and ambient occlusion maps. <br>Copyright (C) 2020 Borja Franco Garcia");
+		QMessageBox::about(this, "About fNabla", "<b>fNabla</b><br><br>Version 1.0<br>fNabla is a tool for converting between height, normal and curvature as well as computing ambient occlusion. <br>Copyright (C) 2020 Borja Franco Garcia");
 	});
 	QObject::connect(ui.actionExit, &QAction::triggered, this, [this]() {
 		QCoreApplication::exit(0);
@@ -453,6 +460,8 @@ void fNablaGUI::SetLoadedState(bool loaded) {
 	ui.actionFit_Window->setEnabled(loaded);
 	ui.actionZoom_In->setEnabled(loaded);
 	ui.actionZoom_Out->setEnabled(loaded);
+	ui.MapSelectTab->setEnabled(loaded);
+	ui.actionCycle_Map->setEnabled(loaded);
 	LoadedState = loaded;
 }
 
@@ -469,9 +478,16 @@ void fNablaGUI::LoadManager(int i) {
 			ui.actionClear->trigger();
 		}
 		global_descriptor.Input = i;
-		input_image = cv::imread(fileName.toStdString(), Maps[global_descriptor.Input]->ReadFlags);
+		//read as-is with alpha channel and possibly wrong number of channels
+		//engine's import will handle it
+		input_image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED | cv::IMREAD_ANYDEPTH); 
 		//--------------------------
 		//PROCESSING
+		if (input_image.empty()) {
+			QMessageBox::warning(this, QStringLiteral("Load Failed"), QStringLiteral("Invalid image format"));
+			ui.actionClear->trigger();
+			return;
+		}
 		ProcessInput();
 		//-------------------
 		//SET LOADED STATE
@@ -511,19 +527,32 @@ void fNablaGUI::RedrawAll() {
 
 //PROCESSSING
 void fNablaGUI::MonitorProgressAndWait(ConversionTask& conversion) {
-	while (!conversion.IsReady()) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10)); //update at 20fps
+
+	ui.actionClear->setEnabled(false);
+	ui.actionExport_All->setEnabled(false);
+	bool anyEnabled = false;
+	for (int i = 0; i < NUM_OUTPUTS; i++) {
+		MapInfoArray[i].ExportAction->setEnabled(false);
+	}
+	ui.actionExport_All->setEnabled(false);
+	ui.actionLoadGroup->setEnabled(false);
+
+	while (!conversion.CheckReady()) {
+		QCoreApplication::processEvents(); //don't freeze the UI
 		ui.ProgressBar->setValue(int(100.0 * conversion.progress));
 		ui.Status->setText(QString::fromStdString(conversion.status));
 	}
+	conversion.output.get(); //"inherit" any async exceptions.
 	ui.Status->setText(QStringLiteral("Ready"));
+
+	ui.actionLoadGroup->setEnabled(true);
+	SetLoadedState(true);
 }
 
 void fNablaGUI::ProcessInput(bool override_work_res) {
 	double scale_factor = (override_work_res ? 1.0 : WorkingScaleFactor);
 
 	Maps[global_descriptor.Input]->Import(input_image, scale_factor); //reload fresh unprocessed input to not accumulate
-
 	MonitorProgressAndWait(ConversionTask(Maps, configuration, global_descriptor, scale_factor));
 }
 
@@ -541,8 +570,8 @@ void fNablaGUI::ExportManager(std::bitset<NUM_OUTPUTS> map_selection) {
 	QString MapsSaved;
 	// Asumption: All images have been processed since that happens on load. I'll have to make it so clicking this is not available until that's done processing.
 	QString fileName = QFileDialog::getSaveFileName(this,
-		tr("Export texture set (suffix for map type and extension added automatically)"), "",
-		tr("All Files (*)")); //we don't care about extension
+		QStringLiteral("Export texture set (suffix for map type and extension added automatically)"), "",
+		QStringLiteral("All Files (*)")); //we don't care about extension
 	QFileInfo fileInfo(fileName);
 	if (!fileName.isEmpty()) {
 		std::bitset<NUM_OUTPUTS> check(map_selection);
@@ -566,10 +595,10 @@ void fNablaGUI::ExportManager(std::bitset<NUM_OUTPUTS> map_selection) {
 			}
 		}
 		if (MapsSaved.isEmpty()) {
-			QMessageBox::warning(this, "Export Failed", "No output generated");
+			QMessageBox::warning(this, QStringLiteral("Export Failed"), QStringLiteral("No output generated"));
 		}
 		else {
-			QMessageBox::information(this, "Exported:", MapsSaved);
+			QMessageBox::information(this, QStringLiteral("Exported:"), MapsSaved);
 		}
 	}
 }

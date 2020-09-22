@@ -1,36 +1,15 @@
 ﻿#include "fNablaEngine.h"
 
-///DLL Entry point
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
-	switch (ul_reason_for_call) {
-		case DLL_PROCESS_ATTACH:
-			// Initialize once for each new process.
-			// Return FALSE to fail DLL load.  
-			break;
-		case DLL_THREAD_ATTACH:
-			// Do thread-specific initialization.
-			break;
-		case DLL_THREAD_DETACH:
-			// Do thread-specific cleanup.       
-			break;
-		case DLL_PROCESS_DETACH:
-			// Perform any necessary cleanup.
-			break;
-	}
-	return TRUE;
-}
-
-
 //----------MESHMAP----------
 
-#define CHECK_MAT if (Mat.empty()) throw std::invalid_argument("Unallocated matrix");
-#define CHECK_INPUT(InputMat) if (InputMat.empty()) throw std::invalid_argument("Unallocated matrix");
+#define CHECK_MAT if (Mat.empty()) throw std::invalid_argument("Unallocated matrix")
+#define CHECK_INPUT(InputMat) if (InputMat.empty()) throw std::invalid_argument("Unallocated matrix")
 
 /// <summary>
 /// Allocates the memory required for the input shape on this->Mat. Must be called before any function used the data.
 /// </summary>
 /// <param name="shape">shape of matrix</param>
-void fNablaEngine::MeshMap::AllocateMat(const cv::Size shape) {
+void fNablaEngine::TextureMap::AllocateMat(const cv::Size shape) {
 	Mat = cv::Mat(shape, Type);
 }
 
@@ -39,10 +18,49 @@ void fNablaEngine::MeshMap::AllocateMat(const cv::Size shape) {
 /// </summary>
 /// <param name="input">Input data</param>
 /// <param name="factor">scale factor</param>
-void fNablaEngine::MeshMap::Import(const cv::Mat& input, const double factor){
-	CHECK_INPUT(input)
+void fNablaEngine::TextureMap::Import(const cv::Mat& input, const double factor){
+	CHECK_INPUT(input);
+
+	//extract alpha channel if present
+	cv::Mat mask;
+	if (input.channels() == 4) {
+		mask = cv::Mat(input.rows, input.cols, CVType(input.depth(), 1));
+		int mask_fromTo[] = {3, 0};
+		cv::mixChannels(&input, 1, &mask, 1, mask_fromTo, 1);
+
+		auto [mask_alpha, mask_beta] = GetAlphaBeta(input.depth(), 0, 1, false);
+		mask.convertTo(mask, CVType(Depth, 1), mask_alpha, mask_beta);
+	}
+
+	//Handle channels
+	std::vector<int> fromTo;
+	fromTo.reserve(size_t(NumChannels) * 2);
+	for (int i = 0; i < NumChannels; i++) {
+		fromTo.push_back(i % input.channels());
+		fromTo.push_back(i);
+	}
+	Mat = cv::Mat(input.rows, input.cols, CVType(input.depth(), NumChannels));
+	cv::mixChannels(&input, 1, &Mat, 1, fromTo.data(), NumChannels);
+
+	//Handle data range
 	auto [alpha, beta] = GetAlphaBeta(input.depth(), RangeLower, RangeUpper, false);
-	input.convertTo(Mat, Type, alpha, beta);
+	Mat.convertTo(Mat, Depth, alpha, beta);
+
+	//apply alpha channel to result
+	if (!mask.empty()) {
+		if (NumChannels == 1) {
+			cv::multiply(Mat, mask, Mat);
+		} else {
+			Mat.forEach<cv::Point3d>([&](cv::Point3d& p, const int* pos) -> void {
+				double& m = mask.at<double>(pos);
+				p.x *= m;
+				p.y *= m;
+				p.z *= m;
+			});
+		}
+	}
+
+	//optional resizing
 	if (factor != 1.0) {
 		cv::resize(Mat, Mat, cv::Size(), factor, factor, cv::INTER_AREA);
 	}
@@ -55,8 +73,8 @@ void fNablaEngine::MeshMap::Import(const cv::Mat& input, const double factor){
 /// <param name="postprocess">Apply postprocess</param>
 /// <param name="factor">scale factor</param>
 /// <returns>Final cv::Mat</returns>
-cv::Mat fNablaEngine::MeshMap::Export(const int depth, const bool postprocess, const double factor) {
-	CHECK_MAT
+cv::Mat fNablaEngine::TextureMap::Export(const int depth, const bool postprocess, const double factor) {
+	CHECK_MAT;
 	auto [alpha, beta] = GetAlphaBeta(depth, RangeLower, RangeUpper, true);
 	cv::Mat output = (postprocess ? Postprocess() : Mat.clone());
 	output.convertTo(output, output.depth(), alpha, beta);
@@ -82,8 +100,8 @@ cv::Mat fNablaEngine::MeshMap::Export(const int depth, const bool postprocess, c
 /// <summary>
 /// Normalize data. Specific behaviour depends on the MeshMap.
 /// </summary>
-void fNablaEngine::MeshMap::Normalize() {
-	CHECK_MAT
+void fNablaEngine::TextureMap::Normalize() {
+	CHECK_MAT;
 	cv::normalize(Mat, Mat, RangeLower, RangeUpper, cv::NORM_MINMAX);
 }
 
@@ -91,8 +109,8 @@ void fNablaEngine::MeshMap::Normalize() {
 /// Applies some final modification to the data that is not computationally intensive and requires higher iteration on parameters.
 /// </summary>
 /// <returns>Copy of Mat with posprocessing applied</returns>
-cv::Mat fNablaEngine::MeshMap::Postprocess() {
-	CHECK_MAT
+cv::Mat fNablaEngine::TextureMap::Postprocess() {
+	CHECK_MAT;
 	return Mat.clone();
 }
 
@@ -113,7 +131,7 @@ cv::Mat fNablaEngine::SurfaceMap::AllocateSpectrum(cv::Size shape) {
 /// </summary>
 /// <param name="Spectrum">Output spectrum</param>
 void fNablaEngine::SurfaceMap::CalculateSpectrum(cv::Mat& Spectrum) {
-	CHECK_MAT
+	CHECK_MAT;
 	int fromTo[] = { 0, 0, -1, 1 };
 	cv::mixChannels(&Mat, 1, &Spectrum, 1, fromTo, 2);
 	fft2(Spectrum);
@@ -124,7 +142,7 @@ void fNablaEngine::SurfaceMap::CalculateSpectrum(cv::Mat& Spectrum) {
 /// </summary>
 /// <param name="Spectrum">Input spectrum</param>
 void fNablaEngine::SurfaceMap::ReconstructFromSpectrum(cv::Mat& Spectrum) {
-	CHECK_INPUT(Spectrum)
+	CHECK_INPUT(Spectrum);
 	ifft2(Spectrum);
 	int fromTo[] = { 0, 0 };
 	cv::mixChannels(&Spectrum, 1, &Mat, 1, fromTo, 1);
@@ -133,7 +151,7 @@ void fNablaEngine::SurfaceMap::ReconstructFromSpectrum(cv::Mat& Spectrum) {
 //----------DISPLACEMENT----------
 
 cv::Mat fNablaEngine::DisplacementMap::Postprocess() {
-	CHECK_MAT
+	CHECK_MAT;
 	int current_colormap = config.displacement_colormap.Get();
 	if (current_colormap == GRAYSCALE) {
 		return Mat.clone();
@@ -161,7 +179,7 @@ cv::Mat fNablaEngine::DisplacementMap::Postprocess() {
 //----------NORMAL----------
 
 void fNablaEngine::NormalMap::Normalize() {
-	CHECK_MAT
+	CHECK_MAT;
 	Mat.forEach<cv::Point3d>([&](cv::Point3d& p, const int* pos) -> void {
 		double norm = sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
 		if (norm != 0.0) {
@@ -177,7 +195,7 @@ void fNablaEngine::NormalMap::Normalize() {
 }
 
 void fNablaEngine::NormalMap::CalculateSpectrum(cv::Mat& Spectrum) {
-	CHECK_MAT
+	CHECK_MAT;
 	int fromTo[] = { 1, 0, 2, 1 };
 	cv::mixChannels(&Mat, 1, &Spectrum, 1, fromTo, 2);
 	cv::multiply(Spectrum, config.normal_swizzle.Get(), Spectrum);
@@ -185,7 +203,7 @@ void fNablaEngine::NormalMap::CalculateSpectrum(cv::Mat& Spectrum) {
 }
 
 void fNablaEngine::NormalMap::ReconstructFromSpectrum(cv::Mat& Spectrum) {
-	CHECK_INPUT(Spectrum)
+	CHECK_INPUT(Spectrum);
 	ifft2(Spectrum);
 	cv::multiply(Spectrum, config.normal_swizzle.Get(), Spectrum);
 	cv::Mat planes[2];
@@ -216,7 +234,7 @@ void fNablaEngine::NormalMap::ReconstructFromSpectrum(cv::Mat& Spectrum) {
 }
 
 cv::Mat fNablaEngine::NormalMap::Postprocess() {
-	CHECK_MAT
+	CHECK_MAT;
 	cv::Mat output = Mat.clone();
 	//derivative
 	//output.forEach<cv::Point3d>([&](cv::Point3d& p, const int* pos) -> void {
@@ -245,14 +263,14 @@ cv::Mat fNablaEngine::NormalMap::Postprocess() {
 //----------CURVATURE----------
 
 void fNablaEngine::CurvatureMap::Normalize() {
-	CHECK_MAT
+	CHECK_MAT;
 	double min, max;
 	cv::minMaxLoc(Mat, &min, &max);
 	Mat /= std::max(abs(min), max);
 }
 
 cv::Mat fNablaEngine::CurvatureMap::Postprocess() {
-	CHECK_MAT
+	CHECK_MAT;
 	int current_mode = config.curvature_mode.Get();
 	if (current_mode == CURVATURE_SPLIT)
 	{
@@ -291,7 +309,7 @@ cv::Mat fNablaEngine::CurvatureMap::Postprocess() {
 //----------AO----------
 
 cv::Mat fNablaEngine::AmbientOcclusionMap::Postprocess() {
-	CHECK_MAT
+	CHECK_MAT;
 	cv::Mat output = Mat.clone();
 	output.forEach<double>([&](double& occ, const int* pos) -> void {
 		occ = 1.0 - pow(1.0 - tanh(occ), config.ao_power.Get());
@@ -307,14 +325,14 @@ cv::Mat fNablaEngine::AmbientOcclusionMap::Postprocess() {
 /// <param name="config">Holds all tweakable parameters used</param>
 /// <param name="descriptor">Descriptor of input and outputs</param>
 /// <param name="scale_factor">Current scale factor being used for consistency</param>
-fNablaEngine::ConversionTask::ConversionTask(MeshMapArray& Maps, Configuration& configuration, Descriptor& descriptor, double scale_factor) {
-	output = std::async(std::launch::async, [&]() {Run(Maps, configuration, descriptor, scale_factor);});
+fNablaEngine::ConversionTask::ConversionTask(TextureSet& Maps, Configuration& configuration, Descriptor& descriptor, double scale_factor) {
+	output = std::async(std::launch::async, [&]() {Run(std::ref(Maps), std::ref(configuration), std::ref(descriptor), scale_factor);});
 }
 
 /// <summary>
 /// Checks if task is done
 /// </summary>
-bool fNablaEngine::ConversionTask::IsReady() {
+bool fNablaEngine::ConversionTask::CheckReady() {
 	return (output.wait_for(std::chrono::seconds(0)) == std::future_status::ready);
 }
 
@@ -338,7 +356,7 @@ void fNablaEngine::ConversionTask::NextMilestone(std::string new_status) {
 /// <summary>
 /// Internal function called by the async wrapper above. Refer to ConversionTask's contructor for parameters.
 /// </summary>
-void fNablaEngine::ConversionTask::Run(MeshMapArray& Maps, Configuration& configuration, Descriptor& descriptor, double scale_factor) {
+void fNablaEngine::ConversionTask::Run(TextureSet& Maps, Configuration& configuration, Descriptor& descriptor, double scale_factor) {
 	if ((descriptor.Input >= NUM_INPUTS) || (descriptor.Input < 0) || (descriptor.Output.none())) {
 		throw std::invalid_argument("Invalid descriptor");
 	}
@@ -386,6 +404,7 @@ void fNablaEngine::ConversionTask::Run(MeshMapArray& Maps, Configuration& config
 	const cv::Point2d sigma_integration(effective_high_pass * inv_aspect_ratio, effective_high_pass * aspect_ratio);
 
 	spectrums[final_descriptor.Input].forEach<std::complex<double>>([&](std::complex<double>& input, const int* pos) {
+	//std::for_each(spectrums[final_descriptor.Input].begin<std::complex<double>>(), spectrums[final_descriptor.Input].end<std::complex<double>>(), [](std::complex<double>& input) {
 		const double x = (double)pos[1] / (double)shape.width;
 		const double y = (double)pos[0] / (double)shape.height;
 		//plot 2 * pi * (x - floor(2x)) + i * 2 * pi * (y - floor(2y)), x = 0..1, y = 0..1
@@ -447,7 +466,7 @@ void fNablaEngine::ConversionTask::Run(MeshMapArray& Maps, Configuration& config
 	}
 	if (final_descriptor.Output[AO]) {
 
-		NextMilestone("Computing Ambient Occlusion...");
+		NextMilestone("Preparing Ambient Occlusion...");
 
 		fNablaEngineCuda::ComputeAOCuda(
 			Maps[DISPLACEMENT]->Mat,
@@ -455,7 +474,8 @@ void fNablaEngine::ConversionTask::Run(MeshMapArray& Maps, Configuration& config
 			Maps[AO]->Mat,
 			configuration.ao_samples.Get(),
 			configuration.ao_distance.Get(),
-			configuration.ao_scale.Get()
+			configuration.ao_scale.Get(),
+			status
 		);
 	}
 
@@ -473,6 +493,9 @@ bool fNablaEngine::CheckGPUCompute() {
 	}
 }
 
+int fNablaEngine::CVType(const int CV_Depth, const unsigned int num_channels) {
+	return CV_Depth + (((num_channels)-1) << CV_CN_SHIFT); //following how it's currently done in the implementation
+}
 /// <summary>
 /// Obtain Alpha (scale factor) and Beta (offset) values for the conversion from an arbitrary CV type to the floating point range used internally by the MeshMap
 /// </summary>
@@ -516,11 +539,20 @@ std::tuple<double, double> fNablaEngine::GetAlphaBeta(const int CV_Depth, const 
 /// <param name="input">complex-valued (2 channels) matrix</param>
 /// <param name="inverse">forward or backwards</param>
 void fNablaEngine::fft2(cv::Mat& input, bool inverse) {
+#ifndef USE_MKL
+	if (inverse) {
+		cv::dft(input, input, cv::DFT_COMPLEX_INPUT || cv::DFT_COMPLEX_OUTPUT || cv::DFT_INVERSE || cv::DFT_SCALE);
+	} else {
+		cv::dft(input, input, cv::DFT_COMPLEX_INPUT || cv::DFT_COMPLEX_OUTPUT);
+	}
+#endif // USE_MKL
+#ifdef USE_MKL
 	DFTI_DESCRIPTOR_HANDLE descriptor = NULL;
 	int status;
 	int dim_sizes[2] = {input.rows, input.cols};
 
-	status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 2, dim_sizes); //complex doubles, 2D
+	//status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 2, dim_sizes);
+	status = DftiCreateDescriptor_d_md(&descriptor, DFTI_COMPLEX, 2, dim_sizes); //to reduce custom DLL size we are calling directly the double precision function
 	if (inverse) {
 		status = DftiSetValue(descriptor, DFTI_BACKWARD_SCALE, 1.0f / (dim_sizes[0] * dim_sizes[1]));
 		status = DftiCommitDescriptor(descriptor);
@@ -530,6 +562,7 @@ void fNablaEngine::fft2(cv::Mat& input, bool inverse) {
 		status = DftiComputeForward(descriptor, input.data);
 	}
 	status = DftiFreeDescriptor(&descriptor);
+#endif // USE_MKL
 }
 /// <summary>
 /// Convenience function for inverse fourier transform. See fNablaEngine::fft2.
