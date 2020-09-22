@@ -20,12 +20,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
-    <UseIntelMKL>Parallel</UseIntelMKL>
+    <UseIntelMKL>No</UseIntelMKL>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseILP64Interfaces>false</UseILP64Interfaces>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
-    <UseIntelMKL>Parallel</UseIntelMKL>
+    <UseIntelMKL>No</UseIntelMKL>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <UseILP64Interfaces>false</UseILP64Interfaces>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -43,12 +47,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath);$(MKLROOT)\include</IncludePath>
+    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Debug;$(LibraryPath);$(SolutionDir)\MKLDLL\x64\Debug</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\build\include;$(SolutionDir)fNablaEngine;$(SolutionDir)fNablaResources;$(IncludePath);$(MKLROOT)\include</IncludePath>
+    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(SolutionDir)x64\Release;$(LibraryPath);$(SolutionDir)\MKLDLL\x64\Release</LibraryPath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
@@ -81,13 +87,21 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <Version>0.1</Version>
+      <Version>1.0</Version>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world440d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>"C:\Qt\5.9.9\msvc2017_64\bin\windeployqt.exe" "$(OutDir.TrimEnd('\'))" --$(Configuration.toLower())</Command>
+      <Command>xcopy "$(SolutionDir)\_Dependencies\$(Configuration)\" "$(OutDir)\" /E /I /C /Y</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CudaRuntime>Shared</CudaRuntime>
+    </CudaCompile>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <ExtensibleWholeProgramCompilation>true</ExtensibleWholeProgramCompilation>
+      <CodeGeneration>compute_52,sm_52;compute_53,sm_53;compute_60,sm_60;compute_61,sm_61;compute_62,sm_62;compute_70,sm_70;compute_72,sm_72;compute_75,sm_75;compute80,sm_80;%(CodeGeneration)</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -96,11 +110,14 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,11 +125,21 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world440.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <Version>0.1</Version>
+      <Version>1.0</Version>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
-      <Command>"C:\Qt\5.9.9\msvc2017_64\bin\windeployqt.exe" "$(OutDir.TrimEnd('\'))" --$(Configuration.toLower())</Command>
+      <Command>xcopy "$(SolutionDir)\_Dependencies\$(Configuration)\" "$(OutDir)\" /E /I /C /Y</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CudaRuntime>Shared</CudaRuntime>
+    </CudaCompile>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <ExtensibleWholeProgramCompilation>true</ExtensibleWholeProgramCompilation>
+      <CodeGeneration>compute_52,sm_52;compute_53,sm_53;compute_60,sm_60;compute_61,sm_61;compute_62,sm_62;compute_70,sm_70;compute_72,sm_72;compute_75,sm_75;compute80,sm_80;%(CodeGeneration)</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fNablaGUI.cpp" />

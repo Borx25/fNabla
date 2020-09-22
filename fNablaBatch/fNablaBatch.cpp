@@ -4,7 +4,8 @@ int main(int argc, char *argv[]){
     QCoreApplication app(argc, argv);
 
 	QCoreApplication::setApplicationName("fNabla");
-	QCoreApplication::setOrganizationName("fNabla");
+	QCoreApplication::setOrganizationName("BorjaFranco");
+	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	app.processEvents();
 	fNablaBatch::Task task(&app);
@@ -38,6 +39,8 @@ void fNablaBatch::Task::Run() {
 	};
 
 	QTextStream stream(stdout);
+	QCommandLineParser parser;
+	Configuration configuration;
 
 ///ABORT MACRO--------
 #define ABORT(ERROR_MESSAGE)																														\
@@ -46,17 +49,27 @@ emit Finished();																																	\
 return
 ///------------------
 
-	QCommandLineParser parser;
-	parser.setApplicationDescription(QStringLiteral(
-"\nfNabla is a tool for conversion between height, normal, curvature and ambient occlusion maps. Copyright (C) 2020 Borja Franco Garcia \n\n\
-> Computing ambient occlusion using the default configuration: \n\
-\t \"[Installation folder]\\fNablaBatch.exe\" -o \"[pipeline path]\\in\" \"[pipeline path]\\out\" \n\n\
-> Computing all maps using a custom configuration file: \n\
-\t \"[Installation folder]\\fNablaBatch.exe\" -dnco \"[pipeline path]\\in\" \"[pipeline path]\\out\" \"[pipeline path]\\my_config_file.ini\" \n\n\
-Generating a default configuration file for customization: \n\
-\t \"[Installation folder]\\fNablaBatch.exe\" -t \"[pipeline path]\\my_config_file.ini\" \n\n\
-Please note ambient occlusion calculation requires a CUDA-capable GPU"
-	));
+
+	QString appPath = QCoreApplication::applicationDirPath().replace('/', '\\');
+	QString GUISettingspath = QSettings().fileName();
+
+	parser.setApplicationDescription(
+QStringLiteral("\nfNabla is a tool for converting between height, normal and curvature as well as computing ambient occlusion.\nCopyright (C) 2020 Borja Franco Garcia \n\n\
+Input type (displacement/normal/curvature) is inferred from its suffix according to any loaded configuration file or defaults in its absence, which are as follows: \n")
++ QStringLiteral("\t\"") + QString::fromStdString(configuration.export_settings[DISPLACEMENT].Get_suffix()) + QStringLiteral("\"\n")
++ QStringLiteral("\t\"") + QString::fromStdString(configuration.export_settings[NORMAL].Get_suffix()) + QStringLiteral("\"\n")
++ QStringLiteral("\t\"") + QString::fromStdString(configuration.export_settings[CURVATURE].Get_suffix()) + QStringLiteral("\"\n")
++ QStringLiteral("\n--- Example commands ---\n\
+> Compute ambient occlusion using the default configuration: \n\t \"")
++ appPath + QStringLiteral("\\fNablaBatch.exe\" -o \"[pipeline path]\\in\" \"[pipeline path]\\out\" \n\n\
+> Compute all maps using a custom configuration file: \n\t \"")
++ appPath + QStringLiteral("\\fNablaBatch.exe\" -dnco \"[pipeline path]\\in\" \"[pipeline path]\\out\" \"[pipeline path]\\my_config_file.ini\" \n\n\
+> Generate a default configuration file at the chosen path for customization: \n\t \"")
++ appPath + QStringLiteral("\\fNablaBatch.exe\" -t \"[pipeline path]\\my_config_file.ini\" \n\n\
+> Compute AO and curvature using the settings saved from the GUI version of fNabla: \n\t \"")
++ appPath + QStringLiteral("\\fNablaBatch.exe\" -co \"[pipeline path]\\in\" \"[pipeline path]\\out\" \"") + GUISettingspath
++ QStringLiteral("\"\n\nPlease note ambient occlusion calculation requires a CUDA-capable GPU")
+	);
 	parser.addHelpOption();
 	parser.addVersionOption();
 
@@ -84,8 +97,6 @@ Please note ambient occlusion calculation requires a CUDA-capable GPU"
 	parser.process(QCoreApplication::arguments());
 
 	const QStringList args = parser.positionalArguments(); //0=source, 1=target, 2=settings
-
-	Configuration configuration;
 
 	if (parser.isSet(templateOption)) {
 		if ((args.length() == 1) && !(args[0].isEmpty())) {
@@ -234,13 +245,13 @@ Please note ambient occlusion calculation requires a CUDA-capable GPU"
 	QDirIterator inputs(inputDir.absoluteFilePath(), SupportedFormats, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
 	while (inputs.hasNext()) {
 		QFileInfo file(inputs.next());
-		QString TextureSet;
+		QString TextureSetName;
 		Descriptor descriptor(global_descriptor);
 		descriptor.Input = -1;
 		for (int i = 0; i < NUM_OUTPUTS; i++) {
 			QString suffix = QString::fromStdString(configuration.export_settings[i].Get_suffix());
 			if (file.baseName().endsWith(suffix, Qt::CaseSensitive)) {
-				TextureSet = outputDir.absoluteFilePath() + QStringLiteral("/") + file.baseName().remove(suffix);
+				TextureSetName = outputDir.absoluteFilePath() + QStringLiteral("/") + file.baseName().remove(suffix);
 				descriptor.Input = i;
 			}
 		}
@@ -248,28 +259,28 @@ Please note ambient occlusion calculation requires a CUDA-capable GPU"
 		{
 			stream
 				<< QStringLiteral("[fNabla][INPUT]: ")
-				<< TextureSet
+				<< TextureSetName
 				<< QStringLiteral(" ")
 				<< MapNames[descriptor.Input]
 				<< endl;
 
-			MeshMapArray Maps = {{
+			TextureSet Maps = {{
 				std::make_shared<DisplacementMap>(configuration),
 				std::make_shared<NormalMap>(configuration),
 				std::make_shared<CurvatureMap>(configuration),
 				std::make_shared<AmbientOcclusionMap>(configuration),
 			}};
 
-			cv::Mat input_image = cv::imread(file.absoluteFilePath().toStdString(), Maps[descriptor.Input]->ReadFlags);
+			cv::Mat input_image = cv::imread(file.absoluteFilePath().toStdString(), cv::IMREAD_UNCHANGED | cv::IMREAD_ANYDEPTH);
 			if (input_image.empty()) {
-				stream << QStringLiteral("[fNabla][ERROR] Failed to load input. Skipping."); //we don't need to abort, we can correctly try to do the rest
+				stream << QStringLiteral("[fNabla][ERROR] Failed to load input. Skipping."); //we don't need to abort, we can do the rest
 			} else {
 				const cv::Size shape = input_image.size();
 
 				Maps[descriptor.Input]->Import(input_image);
 
 				ConversionTask conversion(Maps, configuration, descriptor);
-				while (!conversion.IsReady()) {
+				while (!conversion.CheckReady()) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(50)); //update at 20fps
 					stream
 						<< QStringLiteral("[fNabla][PROGRESS]: ")
@@ -280,12 +291,14 @@ Please note ambient occlusion calculation requires a CUDA-capable GPU"
 						<< '\t' << '\t' << '\t' << '\t' //4 tabs to account for different sized messages
 						<< '\r' << flush; //back to start of line
 				}
+				conversion.output.get(); //"inherit" any async exceptions.
 				stream << endl; //finish progress tracker line
+
 
 				QStringList MapsSaved;
 				for (int i = 0; i < NUM_OUTPUTS; i++) {
 					if (descriptor.Output[i]) {
-						QString output = TextureSet + QString::fromStdString(configuration.export_settings[i].Get_full_suffix());
+						QString output = TextureSetName + QString::fromStdString(configuration.export_settings[i].Get_full_suffix());
 						cv::Mat save_img = Maps[i]->Export(configuration.export_settings[i].Get_CVdepth(), i != 0);
 						cv::imwrite(output.toStdString(), save_img);
 						MapsSaved << output;

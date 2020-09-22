@@ -13,4 +13,12 @@
 /Settings location.lnk
 /fNablaEngine/Colormaps.py
 /Deploy/fNabla.tmp
+/fNablaEngine/EDSR_x2.pb
+/fNablaEngine/EDSR_x4.pb
+/fNablaResources/x64
+/MKL build/.vs/libintel64/v16
+/MKL build/i_malloc_dll/x64
+/MKL build/lp64_parallel/x64
+/MKL build/lp64_sequential/x64
+/MKL build/vml_dll_core/x64
 /Install location.lnk

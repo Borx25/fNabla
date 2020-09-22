@@ -20,9 +20,9 @@ void fNablaEngineCuda::CheckCUDACapable() {
 
 __global__ void fNablaEngineCuda::_pre_kernel(
 	double2* directions,
-	const unsigned int samples
+	const uint samples
 ) {
-	const unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < samples) {
 		double theta = 2.0 * _PI * ((double)id / (double)samples) - 2.0 * _PI_2; // -pi/2 to pi/2
 		directions[id].y = sin(theta);
@@ -30,10 +30,30 @@ __global__ void fNablaEngineCuda::_pre_kernel(
 	}
 }
 
-__device__ inline double fNablaEngineCuda::IntegrateArc(double l, double r, double n, double sin_n, double cos_n) {
-	//simplified formula that's very close including lerp:
-	//ao_ij += normal_ij.x * (_PI - l - r) - hypot(NdotSN, normal_ij.x) + 1.0;
-	return 0.25 * cos(n + l + l) + 0.25 * cos(n + r + r) + 1.0 * (_PI - l - r) * sin_n + 0.5 * cos_n;
+__device__ __forceinline__ double fNablaEngineCuda::IntegrateArc(double2 h, double n, double sin_n, double cos_n) {
+	return 0.25 * cos(n + h.x + h.x) + 0.25 * cos(n + h.y + h.y) + 1.0 * (_PI - h.x - h.y) * sin_n + 0.5 * cos_n;
+}
+
+__device__ __forceinline__ void fNablaEngineCuda::TestHorizon(
+	double* displacement,
+	dim3 shape,
+	int2 pos,
+	double distance,
+	double height_ref,
+	double& horizon,
+	Edge_mode mode,
+	bool invert
+) {
+	switch (mode) {
+		case Edge_mode::Tile:
+			pos.y += int(shape.y) * ((pos.y < 0) - (pos.y >= int(shape.y)));
+			pos.x += int(shape.x) * ((pos.x < 0) - (pos.x >= int(shape.x)));
+		case Edge_mode::Repeat:
+			pos.y = max(min(pos.y, shape.y-1), 0);
+			pos.x = max(min(pos.x, shape.x-1), 0);
+	}
+
+	horizon = fmax(horizon, (invert ? -1.0 : 1.0) * (displacement[pos.y * shape.x + pos.x] - height_ref) / distance);
 }
 
 __global__ void fNablaEngineCuda::_AO_kernel(
@@ -43,91 +63,59 @@ __global__ void fNablaEngineCuda::_AO_kernel(
 	double* output,
 	dim3 shape,
 	const double radius,
+	const double step_size,
 	const double depth
 ) {
-	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-	const unsigned int z = blockIdx.z * blockDim.z + threadIdx.z;
+	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint z = blockIdx.z * blockDim.z + threadIdx.z;
 
 	if ((x < shape.x) && (y < shape.y) && (z < shape.z)){
 		const double displacement_xy = displacement[y * shape.x + x];
-		double3 normal_xy = normal[y * shape.x + x];
+		const double3 normal_xy = normal[y * shape.x + x];
 
 		//double theta = M_PI * (((double)z) / (double)samples) - M_PI_2; //-pi/2 to pi/2
 		const double sin_theta = directions[z].y; // sin(theta);
 		const double cos_theta = directions[z].x; // cos(theta);
 
-		//D={ sin(theta), cos(theta), 0 }; V={0, 0, 1}; SN = cross(D, V)
-		//N = normal_ij; PN = N - SN * NdotSN = {sin_theta * NdotSN, cos_theta * NdotSN, normal_ij.x}
+		//D={ sin(theta), cos(theta), 0 };
+		//V={0, 0, 1};
+		//SN = cross(D, V)
+		//N = normal_ij;
+		//PN = N - SN * NdotSN = {sin_theta * NdotSN, cos_theta * NdotSN, normal_ij.x}
 
-		double NdotSN = normal_xy.y * cos_theta + normal_xy.z * sin_theta;
-		double rproj_length = rhypot(NdotSN, normal_xy.x);
-		double n = atan2(normal_xy.x, NdotSN);
-		double cos_n = NdotSN * rproj_length;
-		double sin_n = normal_xy.x * rproj_length;
+		const double NdotSN = normal_xy.y * cos_theta + normal_xy.z * sin_theta;
+		const double rproj_length = rhypot(NdotSN, normal_xy.x);
 
-		double max_left = 0.0;
-		double max_right = 0.0;
+		double2 Horizons{-_PI, -_PI};
 
-		//16 line samples per radial sample; 32 radial => 512 line which for up to 4k with the average of 0.25 distance needed means we are only skipping 1 pixel
-		double step_size = radius / (shape.z * 16);
-		//for (double length = 1.0; length <= radius; length++) {
 		for (double length = step_size; length <= radius; length += step_size) {
-			int x_step = lrint(sin_theta * length);
-			int y_step = lrint(cos_theta * length);
-			int rows = shape.y;
-			int cols = shape.x;
 
-			{
-				int left_y = int(y) + y_step;
-				int left_x = int(x) + x_step;
+			const int2 step{lrint(sin_theta * length), lrint(cos_theta * length)};
 
-				//edge repeat
-				//int left_i = max(min(left_i, rows-1), 0);
-				//int left_j = max(min(left_j, cols-1), 0);
-				//mirror
-				left_y += rows * ((left_y < 0) - (left_y >= rows));
-				left_x += cols * ((left_x < 0) - (left_x >= cols));
-
-				double diff_left = (displacement[left_y * shape.x + left_x] - displacement_xy);
-
-				max_left = fmax(max_left, diff_left / length);
-			}
-
-			{
-				int right_y = int(y) - y_step;
-				int right_x = int(x) - x_step;
-
-				//edge repeat
-				//right_i = max(min(right_i, rows-1), 0);
-				//right_j = max(min(right_j, cols-1), 0);
-				//mirror
-				right_y += rows * ((right_y < 0) - (right_y >= rows));
-				right_x += cols * ((right_x < 0) - (right_x >= cols));
-
-				double diff_right = (displacement[right_y * shape.x + right_x] - displacement_xy);
-
-				max_right = fmax(max_right, diff_right / length);
-			}
+			TestHorizon(displacement, shape, {int(x) + step.x, int(y) + step.y}, length, displacement_xy, Horizons.x);
+			TestHorizon(displacement, shape, {int(x) - step.x, int(y) - step.y}, length, displacement_xy, Horizons.y);
 		}
-		double l = atan(depth * max_left);
-		double r = atan(depth * max_right);
+		Horizons.x = atan(depth * Horizons.x);
+		Horizons.y = atan(depth * Horizons.y);
 
+		const double n = atan2(normal_xy.x, NdotSN);
 		//clamp to normal hemisphere
-		l = n + fmin(l - n, _PI_2);
-		r = n + fmin(r - n, _PI_2);
+		Horizons.x = n + fmin(Horizons.x - n, _PI_2);
+		Horizons.y = n + fmin(Horizons.y - n, _PI_2);
 
-		output[y * shape.x * shape.z + x * shape.z + z] = (IntegrateArc(l, r, n, sin_n, cos_n) - 1.0) / rproj_length + 1.0;
+		output[y * shape.x * shape.z + x * shape.z + z] = (IntegrateArc(Horizons, n, normal_xy.x * rproj_length, NdotSN * rproj_length) - 1.0) / rproj_length + 1.0;
 	}
 }
+
 
 __global__ void fNablaEngineCuda::reduce_kernel(
 	double* input,
 	double* output,
 	const dim3 shape
 ) {
-	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
 	if ((x < shape.x) && (y < shape.y)) {
 		output[y * shape.x + x] = 0.0;
@@ -137,11 +125,20 @@ __global__ void fNablaEngineCuda::reduce_kernel(
 	}
 }
 
-void fNablaEngineCuda::ComputeAOCuda(cv::Mat& displacement, cv::Mat& normal, cv::Mat& ao, const unsigned int samples, const double distance, const double depth) {
+void fNablaEngineCuda::ComputeAOCuda(
+	cv::Mat& displacement,
+	cv::Mat& normal,
+	cv::Mat& ao,
+	const uint samples,
+	const double distance,
+	const double depth,
+	std::string& status
+) {
 	CheckCUDACapable();
 
 	const dim3 shape(ao.cols, ao.rows, samples);
-	const double max_size = double(std::min(shape.x, shape.y));
+	const double scale = double(std::min(shape.x, shape.y));
+	const double radius = std::max(distance * scale, 1.0);
 
 	GPUMat<double> gpu_calc(shape);
 
@@ -164,6 +161,8 @@ void fNablaEngineCuda::ComputeAOCuda(cv::Mat& displacement, cv::Mat& normal, cv:
 
 	CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
+	status = "Computing Ambient Occlusion";
+
 	const dim3 block_calc(4, 4, 4);
 	const dim3 grid_calc(
 		(shape.x + block_calc.x - 1) / block_calc.x,
@@ -179,14 +178,16 @@ void fNablaEngineCuda::ComputeAOCuda(cv::Mat& displacement, cv::Mat& normal, cv:
 		gpu_directions.data,
 		gpu_calc.data,
 		shape,
-		std::max(distance * max_size, 1.0),
-		depth * max_size
+		radius,
+		radius / (samples * 16),
+		depth * scale
 	);
 
 	CUDA_ERROR_CHECK(cudaPeekAtLastError());
 
 	CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
+	status = "Finalizing Ambient Occlusion";
 
 	GPUMat<double> gpu_output(dim3(shape.x, shape.y));
 

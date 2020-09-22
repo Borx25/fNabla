@@ -64,10 +64,26 @@ namespace fNablaEngineCuda
 
 	__global__ void _pre_kernel(
 		double2* directions,
-		const unsigned int samples
+		const uint samples
 	);
 
-	__device__ inline double IntegrateArc(double l, double r, double n, double sin_n, double cos_n);
+	__device__ __forceinline__ double IntegrateArc(double2 h, double n, double sin_n, double cos_n);
+
+	enum class Edge_mode {
+		Tile,
+		Repeat
+	};
+
+	__device__ __forceinline__ void TestHorizon(
+		double* displacement,
+		dim3 shape,
+		int2 pos,
+		double distance,
+		double height_ref,
+		double& horizon,
+		Edge_mode mode = Edge_mode::Tile,
+		bool invert = false
+	);
 
 	__global__ void _AO_kernel(
 		double* displacement,
@@ -76,6 +92,7 @@ namespace fNablaEngineCuda
 		double* output,
 		dim3 shape,
 		const double radius,
+		const double step_size,
 		const double depth
 	);
 
@@ -90,8 +107,9 @@ namespace fNablaEngineCuda
 		cv::Mat& displacement,
 		cv::Mat& normal,
 		cv::Mat& ao,
-		const unsigned int samples,
+		const uint samples,
 		const double distance,
-		const double depth
+		const double depth,
+		std::string& status
 	);
 }

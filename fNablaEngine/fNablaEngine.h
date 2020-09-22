@@ -1,17 +1,18 @@
 #pragma once
 #pragma warning(disable:4251)
 
-// DLL entry
-#define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
-#include <windows.h>
-
 //Opencv
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 //MKL
+#define USE_MKL
+
+#ifdef USE_MKL
 #include <mkl_dfti.h>
+#endif // USE_MKL
+
 
 //STD
 #include <thread>
@@ -25,7 +26,7 @@
 namespace fNablaEngine
 {
 	/// Generic MeshMap to be subclassed
-	class __declspec(dllexport) MeshMap {
+	class __declspec(dllexport) TextureMap {
 	protected:
 		/// Configuration file with operational parameters
 		Configuration& config;
@@ -38,6 +39,8 @@ namespace fNablaEngine
 		cv::Mat Mat;
 		/// CV Type describing depth and number of channels
 		int Type = CV_64FC1;
+		unsigned int NumChannels = 1;
+		unsigned int Depth = CV_64F;
 		/// CV flags used when reading an input of this kind
 		int ReadFlags = cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH;
 		/// Allocates the memory required for the input shape on this->Mat.
@@ -52,16 +55,16 @@ namespace fNablaEngine
 		virtual cv::Mat Postprocess();
 
 		/// Constructor. Takes a configuration object with all tweakable operational parameters.
-		MeshMap(Configuration& config_) : config(config_){}
+		TextureMap(Configuration& config_) : config(config_){}
 
 		///Destructor
-		~MeshMap() {
+		~TextureMap() {
 			Mat.release();
 		}
 	};
 
 	/// Subset of MeshMaps which represent the geometry of the surface
-	class __declspec(dllexport) SurfaceMap : public MeshMap {
+	class __declspec(dllexport) SurfaceMap : public TextureMap {
 	public:
 		/// Allocates a matrix of complex doubles of the given shape
 		static cv::Mat AllocateSpectrum(cv::Size shape);
@@ -70,7 +73,7 @@ namespace fNablaEngine
 		/// Backward fourier transform of spectrum to mat
 		virtual void ReconstructFromSpectrum(cv::Mat& Spectrum);
 
-		SurfaceMap(Configuration& config_) : MeshMap(config_){}
+		SurfaceMap(Configuration& config_) : TextureMap(config_){}
 	};
 
 	/// Displacement or height map
@@ -85,6 +88,7 @@ namespace fNablaEngine
 	public:
 		NormalMap(Configuration& config_) : SurfaceMap(config_){
 			Type = CV_64FC3;
+			NumChannels = 3;
 			RangeLower = -1.0;
 			ReadFlags = cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH;
 		}
@@ -107,14 +111,14 @@ namespace fNablaEngine
 	};
 
 	/// Ambient Occlusion map
-	class __declspec(dllexport) AmbientOcclusionMap : public MeshMap {
+	class __declspec(dllexport) AmbientOcclusionMap : public TextureMap {
 	public:
-		AmbientOcclusionMap(Configuration& config_) : MeshMap(config_) {}
+		AmbientOcclusionMap(Configuration& config_) : TextureMap(config_) {}
 		cv::Mat Postprocess();
 	};
 
 	/// Containers for all MeshMap types handled
-	using MeshMapArray = std::array<std::shared_ptr<fNablaEngine::MeshMap>, fNablaEngine::NUM_OUTPUTS>;
+	using TextureSet = std::array<std::shared_ptr<fNablaEngine::TextureMap>, fNablaEngine::NUM_OUTPUTS>;
 
 	/// Asyncronously executes the conversion defined by the descriptor on the MeshMaps and tracks its progress
 	class __declspec(dllexport) ConversionTask {
@@ -122,10 +126,10 @@ namespace fNablaEngine
 		std::string status = "Starting...";
 		std::atomic<double> progress = 0.0; ///0 to 1
 		std::future<void> output;
-		ConversionTask(MeshMapArray& Maps, Configuration& config, Descriptor& descriptor, double scale_factor = 1.0);
-		bool IsReady();
+		ConversionTask(TextureSet& Maps, Configuration& config, Descriptor& descriptor, double scale_factor = 1.0);
+		bool CheckReady();
 	private:
-		void Run(MeshMapArray& Maps, Configuration& config, Descriptor& descriptor, double scale_factor = 1.0);
+		void Run(TextureSet& Maps, Configuration& config, Descriptor& descriptor, double scale_factor = 1.0);
 		//Milestone counter
 		int m_num_milestones = 0;
 		int m_milestone_counter = 0;
@@ -140,6 +144,13 @@ namespace fNablaEngine
 
 	/// Obtain Alpha (scale factor) and Beta (offset) values for type conversion
 	std::tuple<double, double> GetAlphaBeta(const int CV_Depth, const double out_low, const double out_up, const bool inverse);
+	int CVType(const int CV_Depth, const unsigned int num_channels);
+
+	template <typename T>
+	int CVType(const int CV_Depth, const unsigned int num_channels) {
+		return CVType(cv::DataType<T>::value, num_channels);
+	}
+
 	/// Performs forward or backwards fourier transform
 	void fft2(cv::Mat& input, bool inverse = false);
 	/// Convenience function for inverse fourier transform

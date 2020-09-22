@@ -154,16 +154,16 @@ namespace fNablaEngine
 		//Displacement
 		Config_Elements::Numeric<int> displacement_colormap{ 0, GRAYSCALE, _NUM_COLORMAPS };
 		//Normal
-		Config_Elements::Numeric<double> normal_scale{ 0.000001, 0.25, 1.0, [](double x) -> double { return exp(5.0 * x); } };
-		Config_Elements::ChannelSign normal_swizzle{ 0, 0 };
+		Config_Elements::Numeric<double> normal_scale{ 0.000001, 0.135, 1.0, [](double x) -> double { return exp(5.0 * x); } };
+		Config_Elements::ChannelSign normal_swizzle{false, false};
 		//Curvature
 		Config_Elements::Numeric<int> curvature_mode{ 0, CURVATURE_COMPLETE, _NUM_CURVATUREMODES };
-		Config_Elements::Numeric<double> curvature_scale{ 0.000001, 0.25, 1.0, [](double x) -> double { return exp(5.0 * x); } };
+		Config_Elements::Numeric<double> curvature_scale{ 0.000001, 0.2, 1.0, [](double x) -> double { return exp(5.0 * x); } };
 		//AO
-		Config_Elements::Numeric<double> ao_scale{ 0.000001, 0.5, 1.0 };
+		Config_Elements::Numeric<double> ao_scale{ 0.000001, 0.25, 1.0 };
 		Config_Elements::Numeric<int> ao_samples{ 8, 16, 128 };
-		Config_Elements::Numeric<double> ao_distance{ 0.000001, 0.35, 1.0};
-		Config_Elements::Numeric<double> ao_power{ 0.000001, 0.45, 1.0, [](double x) -> double { return x * 3.0; } };
+		Config_Elements::Numeric<double> ao_distance{ 0.000001, 0.3, 1.0};
+		Config_Elements::Numeric<double> ao_power{ 0.000001, 0.16, 1.0, [](double x) -> double { return x * 3.0; } };
 		//Export
 		std::array<Config_Elements::ExportSettings, NUM_OUTPUTS>export_settings{ {
 			{ TIFF, BIT32, std::string("_displacement") },
