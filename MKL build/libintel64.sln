@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "i_malloc_dll", "i_malloc_dll\i_malloc_dll.vcxproj", "{DA7198AC-9C6E-4038-A350-B6F7D4F14523}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vml_dll_core", "vml_dll_core\vml_dll_core.vcxproj", "{D6A53717-77CA-4CDA-ABBF-9FDEF8B55799}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lp64_parallel", "lp64_parallel\lp64_parallel.vcxproj", "{81B60964-5CAE-4A30-BF67-20773BB3EDDA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lp64_sequential", "lp64_sequential\lp64_sequential.vcxproj", "{2B3F05CE-ABFA-4D0C-BE01-63EAB5032F6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA7198AC-9C6E-4038-A350-B6F7D4F14523}.Debug|x64.ActiveCfg = Debug|x64
+		{DA7198AC-9C6E-4038-A350-B6F7D4F14523}.Debug|x64.Build.0 = Debug|x64
+		{DA7198AC-9C6E-4038-A350-B6F7D4F14523}.Release|x64.ActiveCfg = Release|x64
+		{DA7198AC-9C6E-4038-A350-B6F7D4F14523}.Release|x64.Build.0 = Release|x64
+		{D6A53717-77CA-4CDA-ABBF-9FDEF8B55799}.Debug|x64.ActiveCfg = Debug|x64
+		{D6A53717-77CA-4CDA-ABBF-9FDEF8B55799}.Debug|x64.Build.0 = Debug|x64
+		{D6A53717-77CA-4CDA-ABBF-9FDEF8B55799}.Release|x64.ActiveCfg = Release|x64
+		{D6A53717-77CA-4CDA-ABBF-9FDEF8B55799}.Release|x64.Build.0 = Release|x64
+		{81B60964-5CAE-4A30-BF67-20773BB3EDDA}.Debug|x64.ActiveCfg = Debug|x64
+		{81B60964-5CAE-4A30-BF67-20773BB3EDDA}.Debug|x64.Build.0 = Debug|x64
+		{81B60964-5CAE-4A30-BF67-20773BB3EDDA}.Release|x64.ActiveCfg = Release|x64
+		{81B60964-5CAE-4A30-BF67-20773BB3EDDA}.Release|x64.Build.0 = Release|x64
+		{2B3F05CE-ABFA-4D0C-BE01-63EAB5032F6C}.Debug|x64.ActiveCfg = Debug|x64
+		{2B3F05CE-ABFA-4D0C-BE01-63EAB5032F6C}.Debug|x64.Build.0 = Debug|x64
+		{2B3F05CE-ABFA-4D0C-BE01-63EAB5032F6C}.Release|x64.ActiveCfg = Release|x64
+		{2B3F05CE-ABFA-4D0C-BE01-63EAB5032F6C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
