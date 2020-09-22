@@ -21,4 +21,5 @@
 /MKL build/lp64_parallel/x64
 /MKL build/lp64_sequential/x64
 /MKL build/vml_dll_core/x64
+/_Dependencies
 /Install location.lnk
