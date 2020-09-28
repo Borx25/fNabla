@@ -1,4 +1,5 @@
 ﻿#include "fNablaEngine.h"
+#include "fNablaInternalDependencies.h"
 
 //----------MESHMAP----------
 
@@ -35,7 +36,7 @@ void fNablaEngine::TextureMap::Import(const cv::Mat& input, const double factor)
 	//Handle channels
 	std::vector<int> fromTo;
 	fromTo.reserve(size_t(NumChannels) * 2);
-	for (int i = 0; i < NumChannels; i++) {
+	for (unsigned int i = 0; i < NumChannels; i++) {
 		fromTo.push_back(i % input.channels());
 		fromTo.push_back(i);
 	}
@@ -78,7 +79,7 @@ cv::Mat fNablaEngine::TextureMap::Export(const int depth, const bool postprocess
 	auto [alpha, beta] = GetAlphaBeta(depth, RangeLower, RangeUpper, true);
 	cv::Mat output = (postprocess ? Postprocess() : Mat.clone());
 	output.convertTo(output, output.depth(), alpha, beta);
-	//gamma
+	//gamma correct?
 	//if (output.channels() == 3) {
 	//	output.forEach<cv::Point3d>([&](cv::Point3d& p, const int* pos) -> void {
 	//		p.x = pow(p.x, 2.2);

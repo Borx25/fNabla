@@ -1,27 +1,12 @@
 #pragma once
 #pragma warning(disable:4251)
 
-//Opencv
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-
-//MKL
-#define USE_MKL
-
-#ifdef USE_MKL
-#include <mkl_dfti.h>
-#endif // USE_MKL
-
-
 //STD
 #include <thread>
 #include <future>
 
-//Engine components
+//Other visible Engine components
 #include "fNablaConfig.h"
-#include "fNablaEngineCuda.cuh"
-#include "fNablaConstants.h"
 
 namespace fNablaEngine
 {
@@ -41,8 +26,6 @@ namespace fNablaEngine
 		int Type = CV_64FC1;
 		unsigned int NumChannels = 1;
 		unsigned int Depth = CV_64F;
-		/// CV flags used when reading an input of this kind
-		int ReadFlags = cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH;
 		/// Allocates the memory required for the input shape on this->Mat.
 		virtual void AllocateMat(const cv::Size shape);
 		/// Loads a cv::Mat into the Meshmap
@@ -90,7 +73,6 @@ namespace fNablaEngine
 			Type = CV_64FC3;
 			NumChannels = 3;
 			RangeLower = -1.0;
-			ReadFlags = cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH;
 		}
 
 		void Normalize();

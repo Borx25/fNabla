@@ -1,7 +1,10 @@
 #pragma once
 
-#include "fNablaEngine.h" //Conversion Engine, includes OpenCV
+#include "fNablaEngine.h" //Conversion Engine
 #include "ui_fNablaGUI.h" // UI header
+
+//Opencv
+#include <opencv2/highgui/highgui.hpp>
 
 //QT headers not covered by the UI header
 #include <QCommandLineParser>
@@ -51,14 +54,16 @@ private:
 	void LoadSettings();
 
 	void LoadManager(int i);
+	void ExportManager(std::bitset<NUM_OUTPUTS> map_selection);
+
 	void MonitorProgressAndWait(ConversionTask& conversion);
 	void ProcessInput(bool override_work_res = false);
+	void MapChanged(int i, bool recompute=true);
 	void ComputeMap(int i);
+
 	void UpdatePixmap(int i);
 	void RedrawAll();
 	void UpdateLabel();
-
-	void ExportManager(std::bitset<NUM_OUTPUTS> map_selection);
 
 	Ui::fNablaGUIClass ui;
 	float UIScaleFactor = 1.0f;
@@ -67,7 +72,7 @@ private:
 	bool HasGPU = false;
 
 	QPixmap DefaultImage;
-	std::array<MapInfo, NUM_OUTPUTS>MapInfoArray;
+	std::array<MapInfo, NUM_OUTPUTS>MapUI;
 	std::unique_ptr<QSettings> settings;
 
 	Configuration configuration;

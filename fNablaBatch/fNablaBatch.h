@@ -9,7 +9,10 @@
 #include <QDirIterator>
 #include <QTimer>
 
-#include "fNablaEngine.h" //Conversion Engine, includes OpenCV
+#include "fNablaEngine.h" //Conversion Engine
+
+//Opencv
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace fNablaEngine;
 

@@ -20,7 +20,6 @@
 //|	CV_64F	|	6	|	14	|	22	|	30	|	38	|	46	|	54	|	62	|
 //+-------- + ---- + ---- + ---- + ---- + ------ + ------ + ------ + ------ +
 
-
 #include "fNablaConstants.h"
 
 namespace fNablaEngineCuda

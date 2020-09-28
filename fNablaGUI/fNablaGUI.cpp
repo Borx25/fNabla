@@ -22,7 +22,7 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 
 	DefaultImage.load(":/fNablaResources/default.png");
 
-	MapInfoArray = {{
+	MapUI = {{
 		{
 		QStringLiteral("Displacement Map"),
 		QStringLiteral("Displacement"),
@@ -74,20 +74,21 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 
 	HasGPU = CheckGPUCompute();
 	if (!HasGPU) {
-		MapInfoArray[AO].EnableSetting->setChecked(false);
-		MapInfoArray[AO].EnableSetting->setCheckable(false);
-		MapInfoArray[AO].ExportAction->setEnabled(false);
-		QMessageBox::warning(this, QStringLiteral("No CUDA-capable GPU detected"), QStringLiteral("Ambient occlusion generation has been disabled"));
+		MapUI[AO].EnableSetting->setChecked(false);
+		MapUI[AO].EnableSetting->setCheckable(false);
+		MapUI[AO].ExportAction->setEnabled(false);
+		ui.MapSelectTab->setTabEnabled(AO, false);
+		QMessageBox::warning(this, QStringLiteral("No CUDA-capable GPU detected"), QStringLiteral("Ambient occlusion generation has been disabled. Make sure you have the latest GPU drivers."));
 	}
 
 	//CONNECTIONS
 	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		QObject::connect(MapInfoArray[i].ExportAction, &QAction::triggered, this, [this, i]() {
+		QObject::connect(MapUI[i].ExportAction, &QAction::triggered, this, [this, i]() {
 			std::bitset<NUM_OUTPUTS>map_selection;
 			map_selection.set(i);
 			ExportManager(map_selection);
 		});
-		QObject::connect(MapInfoArray[i].EnableSetting, &QCheckBox::toggled, this, [this, i](bool checked) {
+		QObject::connect(MapUI[i].EnableSetting, &QCheckBox::toggled, this, [this, i](bool checked) {
 			if (checked) {
 				global_descriptor.Output.set(i);
 			}
@@ -95,7 +96,7 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 				global_descriptor.Output.reset(i);
 			}
 			if (LoadedState) {
-				MapInfoArray[i].ExportAction->setEnabled(checked);
+				MapUI[i].ExportAction->setEnabled(checked);
 				if (checked) {
 					ui.actionExport_All->setEnabled(true);
 					ComputeMap(i);
@@ -104,14 +105,14 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 				else {
 					bool anyChecked = false;
 					for (int i = 0; i < NUM_OUTPUTS; i++) {
-						anyChecked = (anyChecked || MapInfoArray[i].EnableSetting->isChecked());
+						anyChecked = (anyChecked || MapUI[i].EnableSetting->isChecked());
 					}
 					ui.actionExport_All->setEnabled(anyChecked);
 					if (i != global_descriptor.Input)
 					{
 						Maps[i]->Mat.release();
 					}
-					MapInfoArray[i].Pixmap = DefaultImage;
+					MapUI[i].Pixmap = DefaultImage;
 					if (ui.MapSelectTab->currentIndex() == i) {
 						ui.actionCycle_Map->trigger();
 					}
@@ -120,26 +121,26 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 			ui.MapSelectTab->setTabEnabled(i, checked);
 		});
 
-		QObject::connect(MapInfoArray[i].ExportDepth, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
+		QObject::connect(MapUI[i].ExportDepth, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
 			configuration.export_settings[i].Set_bitdepth(idx);
 			if (configuration.export_settings[i].CheckCompatibility(false)) {
-				MapInfoArray[i].ExportFormat->setCurrentIndex(configuration.export_settings[i].Get_format());
+				MapUI[i].ExportFormat->setCurrentIndex(configuration.export_settings[i].Get_format());
 			}
 		});
 
-		QObject::connect(MapInfoArray[i].ExportFormat, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
+		QObject::connect(MapUI[i].ExportFormat, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, i](int idx) {
 			configuration.export_settings[i].Set_format(idx);
 			if (configuration.export_settings[i].CheckCompatibility(true)) {
-				MapInfoArray[i].ExportDepth->setCurrentIndex(configuration.export_settings[i].Get_bitdepth());
+				MapUI[i].ExportDepth->setCurrentIndex(configuration.export_settings[i].Get_bitdepth());
 			}
 		});
 
-		QObject::connect(MapInfoArray[i].ExportSuffix, &QLineEdit::editingFinished, this, [this, i]() {
-			configuration.export_settings[i].Set_suffix(MapInfoArray[i].ExportSuffix->text().toStdString());
+		QObject::connect(MapUI[i].ExportSuffix, &QLineEdit::editingFinished, this, [this, i]() {
+			configuration.export_settings[i].Set_suffix(MapUI[i].ExportSuffix->text().toStdString());
 		});
 
 		QRegExpValidator SuffixValidator(QRegExp("[a-zA-Z0-9_-]{2,25}"), this);
-		MapInfoArray[i].ExportSuffix->setValidator(&SuffixValidator);
+		MapUI[i].ExportSuffix->setValidator(&SuffixValidator);
 	}
 	QObject::connect(ui.actionExport_All, &QAction::triggered, this, [this]() {
 		ExportManager(global_descriptor.Output); 
@@ -176,7 +177,7 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 		ui.Status->setText(QStringLiteral(""));
 		for (int i = 0; i < NUM_OUTPUTS; i++) {
 			Maps[i]->Mat.release();
-			MapInfoArray[i].Pixmap = DefaultImage;
+			MapUI[i].Pixmap = DefaultImage;
 		}
 		SetLoadedState(false);
 	});
@@ -195,30 +196,19 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 	});
 	QObject::connect(ui.Settings_displacement_mode, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
 		configuration.displacement_colormap.Set(idx);
-		if (LoadedState && global_descriptor.Output[DISPLACEMENT]) {
-			UpdatePixmap(DISPLACEMENT);
-			if (ui.MapSelectTab->currentIndex() == DISPLACEMENT) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(DISPLACEMENT, false);
 	});
 	QObject::connect(ui.Settings_normal_scale, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.normal_scale.Set(value);
-		if (LoadedState && global_descriptor.Output[NORMAL]) {
-			UpdatePixmap(NORMAL);
-			if (ui.MapSelectTab->currentIndex() == NORMAL) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(NORMAL, false);
 	});
-	QObject::connect(ui.swizzle_x, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
+	auto swizzle_slot = [this](int idx) {
 		configuration.normal_swizzle.Set(ui.swizzle_x->currentIndex(), ui.swizzle_y->currentIndex());
 		if (LoadedState) {
 			if (global_descriptor.Input == NORMAL) {
 				ProcessInput();
 				RedrawAll();
-			}
-			else if (global_descriptor.Output[NORMAL]) {
+			} else if (global_descriptor.Output[NORMAL]) {
 				ComputeMap(NORMAL);
 				UpdatePixmap(NORMAL);
 				if (ui.MapSelectTab->currentIndex() == NORMAL) {
@@ -226,79 +216,33 @@ fNablaGUI::fNablaGUI(QWidget* parent) : QMainWindow(parent) {
 				}
 			}
 		}
-	});
-	QObject::connect(ui.swizzle_y, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
-		configuration.normal_swizzle.Set(ui.swizzle_x->currentIndex(), ui.swizzle_y->currentIndex());
-		if (LoadedState) {
-			if (global_descriptor.Input == NORMAL) {
-				ProcessInput();
-				RedrawAll();
-			}
-			else if (global_descriptor.Output[NORMAL]) {
-				ComputeMap(NORMAL);
-				UpdatePixmap(NORMAL);
-				if (ui.MapSelectTab->currentIndex() == NORMAL) {
-					UpdateLabel();
-				}
-			}
-		}
-	});
+	};
+	QObject::connect(ui.swizzle_x, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, swizzle_slot);
+	QObject::connect(ui.swizzle_y, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, swizzle_slot);
+
 	QObject::connect(ui.Settings_curvature_scale, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.curvature_scale.Set(value);
-		if (LoadedState && global_descriptor.Output[CURVATURE]) {
-			UpdatePixmap(CURVATURE);
-			if (ui.MapSelectTab->currentIndex() == CURVATURE) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(CURVATURE, false);
 	});
 	QObject::connect(ui.Settings_curvature_mode, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
 		configuration.curvature_mode.Set(idx);
-		if (LoadedState && global_descriptor.Output[CURVATURE]) {
-			UpdatePixmap(CURVATURE);
-			if (ui.MapSelectTab->currentIndex() == CURVATURE) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(CURVATURE, false);
 	});
 	QObject::connect(ui.Settings_ao_scale, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.ao_scale.Set(value);
-		if (LoadedState && global_descriptor.Output[AO]) {
-			ComputeMap(AO);
-			UpdatePixmap(AO);
-			if (ui.MapSelectTab->currentIndex() == AO) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(AO, true);
 	});
 	QObject::connect(ui.Settings_ao_power, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.ao_power.Set(value);
-		if (LoadedState && global_descriptor.Output[AO]) {
-			UpdatePixmap(AO);
-			if (ui.MapSelectTab->currentIndex() == AO) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(AO, false);
 	});
 	QObject::connect(ui.Settings_ao_distance, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.ao_distance.Set(value);
-		if (LoadedState && global_descriptor.Output[AO]) {
-			ComputeMap(AO);
-			UpdatePixmap(AO);
-			if (ui.MapSelectTab->currentIndex() == AO) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(AO, true);
 	});
 	QObject::connect(ui.Settings_ao_samples, &SettingWidget::valueChanged, this, [this](double value) {
 		configuration.ao_samples.Set((int)value);
-		if (LoadedState && global_descriptor.Output[AO]) {
-			ComputeMap(AO);
-			UpdatePixmap(AO);
-			if (ui.MapSelectTab->currentIndex() == AO) {
-				UpdateLabel();
-			}
-		}
+		MapChanged(AO, true);
 	});
 	QObject::connect(ui.WorkingResolution, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this](int idx) {
 		WorkingScaleFactor = exp(-log(2.0) * double(idx));
@@ -337,22 +281,22 @@ void fNablaGUI::LoadSettings() {
 	ui.Settings_high_pass->setValue(settings->value(QStringLiteral("window"), configuration.integration_window.Get_raw()).toDouble());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[DISPLACEMENT].SettingCategory);
+	settings->beginGroup(MapUI[DISPLACEMENT].SettingCategory);
 	ui.Settings_displacement_mode->setCurrentIndex(settings->value(QStringLiteral("colormap"), configuration.displacement_colormap.Get_raw()).toInt());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[NORMAL].SettingCategory);
+	settings->beginGroup(MapUI[NORMAL].SettingCategory);
 	ui.Settings_normal_scale->setValue(settings->value(QStringLiteral("scale"), configuration.normal_scale.Get_raw()).toDouble());
 	ui.swizzle_x->setCurrentIndex(settings->value(QStringLiteral("swizzle_x"), configuration.normal_swizzle.Get_x()).toInt());
 	ui.swizzle_y->setCurrentIndex(settings->value(QStringLiteral("swizzle_y"), configuration.normal_swizzle.Get_y()).toInt());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[CURVATURE].SettingCategory);
+	settings->beginGroup(MapUI[CURVATURE].SettingCategory);
 	ui.Settings_curvature_scale->setValue(settings->value(QStringLiteral("scale"), configuration.curvature_scale.Get_raw()).toDouble());
 	ui.Settings_curvature_mode->setCurrentIndex(settings->value(QStringLiteral("mode"), configuration.curvature_mode.Get_raw()).toInt());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[AO].SettingCategory);
+	settings->beginGroup(MapUI[AO].SettingCategory);
 	ui.Settings_ao_scale->setValue(settings->value(QStringLiteral("scale"), configuration.ao_scale.Get_raw()).toDouble());
 	ui.Settings_ao_samples->setValue(settings->value(QStringLiteral("samples"), configuration.ao_samples.Get_raw()).toDouble());
 	ui.Settings_ao_distance->setValue(settings->value(QStringLiteral("distance"), configuration.ao_distance.Get_raw()).toDouble());
@@ -360,11 +304,11 @@ void fNablaGUI::LoadSettings() {
 	settings->endGroup();
 
 	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		settings->beginGroup(MapInfoArray[i].SettingCategory);
-		MapInfoArray[i].EnableSetting->setChecked(settings->value(QStringLiteral("enable"), configuration.enabled_maps[i].Get()).toBool());
-		MapInfoArray[i].ExportFormat->setCurrentIndex(settings->value(QStringLiteral("format"), configuration.export_settings[i].Get_format()).toInt());
-		MapInfoArray[i].ExportDepth->setCurrentIndex(settings->value(QStringLiteral("bitdepth"), configuration.export_settings[i].Get_bitdepth()).toInt());
-		MapInfoArray[i].ExportSuffix->setText(settings->value(QStringLiteral("suffix"), QString::fromStdString(configuration.export_settings[i].Get_suffix())).toString());
+		settings->beginGroup(MapUI[i].SettingCategory);
+		MapUI[i].EnableSetting->setChecked(settings->value(QStringLiteral("enable"), configuration.enabled_maps[i].Get()).toBool());
+		MapUI[i].ExportFormat->setCurrentIndex(settings->value(QStringLiteral("format"), configuration.export_settings[i].Get_format()).toInt());
+		MapUI[i].ExportDepth->setCurrentIndex(settings->value(QStringLiteral("bitdepth"), configuration.export_settings[i].Get_bitdepth()).toInt());
+		MapUI[i].ExportSuffix->setText(settings->value(QStringLiteral("suffix"), QString::fromStdString(configuration.export_settings[i].Get_suffix())).toString());
 		settings->endGroup();
 	}
 }
@@ -378,22 +322,22 @@ void fNablaGUI::on_actionSaveSettings_clicked() {
 	settings->setValue(QStringLiteral("window"), configuration.integration_window.Get_raw());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[DISPLACEMENT].SettingCategory);
+	settings->beginGroup(MapUI[DISPLACEMENT].SettingCategory);
 	settings->setValue(QStringLiteral("colormap"), configuration.displacement_colormap.Get_raw());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[NORMAL].SettingCategory);
+	settings->beginGroup(MapUI[NORMAL].SettingCategory);
 	settings->setValue(QStringLiteral("scale"), configuration.normal_scale.Get_raw());
 	settings->setValue(QStringLiteral("swizzle_x"), configuration.normal_swizzle.Get_x());
 	settings->setValue(QStringLiteral("swizzle_y"), configuration.normal_swizzle.Get_y());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[CURVATURE].SettingCategory);
+	settings->beginGroup(MapUI[CURVATURE].SettingCategory);
 	settings->setValue(QStringLiteral("scale"), configuration.curvature_scale.Get_raw());
 	settings->setValue(QStringLiteral("mode"), configuration.curvature_mode.Get_raw());
 	settings->endGroup();
 
-	settings->beginGroup(MapInfoArray[AO].SettingCategory);
+	settings->beginGroup(MapUI[AO].SettingCategory);
 	settings->setValue(QStringLiteral("scale"), configuration.ao_scale.Get_raw());
 	settings->setValue(QStringLiteral("samples"), configuration.ao_samples.Get_raw());
 	settings->setValue(QStringLiteral("distance"), configuration.ao_distance.Get_raw());
@@ -401,7 +345,7 @@ void fNablaGUI::on_actionSaveSettings_clicked() {
 	settings->endGroup();
 
 	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		settings->beginGroup(MapInfoArray[i].SettingCategory);
+		settings->beginGroup(MapUI[i].SettingCategory);
 		settings->setValue(QStringLiteral("enable"), configuration.enabled_maps[i].Get());
 		settings->setValue(QStringLiteral("format"), configuration.export_settings[i].Get_format());
 		settings->setValue(QStringLiteral("bitdepth"), configuration.export_settings[i].Get_bitdepth());
@@ -452,8 +396,8 @@ void fNablaGUI::SetLoadedState(bool loaded) {
 	ui.actionExport_All->setEnabled(loaded);
 	bool anyEnabled = false;
 	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		bool enabled = MapInfoArray[i].EnableSetting->isChecked();
-		MapInfoArray[i].ExportAction->setEnabled(loaded && enabled);
+		bool enabled = MapUI[i].EnableSetting->isChecked();
+		MapUI[i].ExportAction->setEnabled(loaded && enabled);
 		anyEnabled = (anyEnabled || enabled);
 	}
 	ui.actionExport_All->setEnabled(anyEnabled && loaded);
@@ -469,7 +413,7 @@ void fNablaGUI::SetLoadedState(bool loaded) {
 void fNablaGUI::LoadManager(int i) {
 	//LOADING
 	QString fileName = QFileDialog::getOpenFileName(this,
-		QStringLiteral("Load ") + MapInfoArray[i].Name, "",
+		QStringLiteral("Load ") + MapUI[i].Name, "",
 		QStringLiteral("Image files (*.png *.tiff *.tif *.pbm);;All Files (*)"));
 	if (!fileName.isEmpty()) {
 		ui.Status->setText(QStringLiteral("Loading"));
@@ -501,26 +445,35 @@ void fNablaGUI::UpdatePixmap(int i) {
 	cv::Mat mat_8bit = Maps[i]->Export(CV_8U);
 
 	if (mat_8bit.channels() == 3) {
-		MapInfoArray[i].Pixmap = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_RGB888).rgbSwapped());
+		MapUI[i].Pixmap = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_RGB888).rgbSwapped());
 	}
 	else {
-		MapInfoArray[i].Pixmap = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_Grayscale8));
+		MapUI[i].Pixmap = QPixmap::fromImage(QImage((unsigned char*)mat_8bit.data, mat_8bit.cols, mat_8bit.rows, mat_8bit.step, QImage::Format_Grayscale8));
 	}
 	if (UIScaleFactor != 1.0) {
-		MapInfoArray[i].Pixmap = MapInfoArray[i].Pixmap.scaled(QSize(mat_8bit.cols * UIScaleFactor, mat_8bit.rows * UIScaleFactor), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		MapUI[i].Pixmap = MapUI[i].Pixmap.scaled(QSize(mat_8bit.cols * UIScaleFactor, mat_8bit.rows * UIScaleFactor), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	}
+}
+
+void fNablaGUI::MapChanged(int i, bool recompute) {
+	if (LoadedState && global_descriptor.Output[i]) {
+		if(recompute)
+			ComputeMap(i);
+		UpdatePixmap(i);
+		if (ui.MapSelectTab->currentIndex() == i)
+			UpdateLabel();
 	}
 }
 
 void fNablaGUI::UpdateLabel() {
-	ui.DisplayLabel->setPixmap(MapInfoArray[ui.MapSelectTab->currentIndex()].Pixmap);
+	ui.DisplayLabel->setPixmap(MapUI[ui.MapSelectTab->currentIndex()].Pixmap);
 	ui.DisplayLabel->adjustSize();
 }
 
 void fNablaGUI::RedrawAll() {
 	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		if ((global_descriptor.Input == i) || (global_descriptor.Output[i])) {
+		if ((global_descriptor.Input == i) || (global_descriptor.Output[i]))
 			UpdatePixmap(i);
-		}
 	}
 	UpdateLabel();
 }
@@ -531,9 +484,8 @@ void fNablaGUI::MonitorProgressAndWait(ConversionTask& conversion) {
 	ui.actionClear->setEnabled(false);
 	ui.actionExport_All->setEnabled(false);
 	bool anyEnabled = false;
-	for (int i = 0; i < NUM_OUTPUTS; i++) {
-		MapInfoArray[i].ExportAction->setEnabled(false);
-	}
+	for (int i = 0; i < NUM_OUTPUTS; i++)
+		MapUI[i].ExportAction->setEnabled(false);
 	ui.actionExport_All->setEnabled(false);
 	ui.actionLoadGroup->setEnabled(false);
 
@@ -586,12 +538,8 @@ void fNablaGUI::ExportManager(std::bitset<NUM_OUTPUTS> map_selection) {
 			if (map_selection[i]) {
 				QString output = fileInfo.absolutePath() + "/" + fileInfo.baseName() + QString::fromStdString(configuration.export_settings[i].Get_full_suffix());
 				cv::Mat save_img = Maps[i]->Export(configuration.export_settings[i].Get_CVdepth(), i != 0); //don't postprocess the displacement (colormap)
-				if (!save_img.empty())
-				{
-					if (cv::imwrite(output.toStdString(), save_img)) {
-						MapsSaved.append(output + QString("\n"));
-					}
-				}
+				if ((!save_img.empty()) && (cv::imwrite(output.toStdString(), save_img)))
+					MapsSaved.append(output + QString("\n"));
 			}
 		}
 		if (MapsSaved.isEmpty()) {
