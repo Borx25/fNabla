@@ -28,6 +28,9 @@
     <ClInclude Include="fNablaConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fNablaInternalDependencies.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="fNablaConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>

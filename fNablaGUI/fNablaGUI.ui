@@ -299,7 +299,7 @@ QCheckBox::indicator::checked {
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,0">
     <item>
      <widget class="QFrame" name="DisplayArea">
       <property name="frameShape">
@@ -488,829 +488,841 @@ QCheckBox::indicator::checked {
      </widget>
     </item>
     <item>
+     <widget class="QFrame" name="RightFrame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QScrollArea" name="SettingsScrollArea">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="SettingsAreaLayout">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1033</width>
+            <height>1192</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,1,1,1,1">
+           <item>
+            <widget class="QFrame" name="Settings_general">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="Settings_heightmap_Layout">
+              <item>
+               <widget class="QLabel" name="Settings_general_label">
+                <property name="styleSheet">
+                 <string notr="true">font: 10pt;</string>
+                </property>
+                <property name="text">
+                 <string>Global</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="WorkingResolution_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+                 <item>
+                  <widget class="QLabel" name="WorkingResolution_label">
+                   <property name="text">
+                    <string>Working Resolution</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="WorkingResolution">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fraction of input resolution used. Requires re-computing the result at full resolution upon export but can make iteration much faster.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>Full</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Half</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Quarter</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_high_pass">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The lower the value the lower the maximum frequency (smaller features only) of the result when going from curvature to normal or normal to curvature.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="minimum">
+                 <double>0.000100000000000</double>
+                </property>
+                <property name="name">
+                 <string>Frequency Window</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="Settings_general_end">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="Settings_displacement">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QFrame" name="Settings_displacement_header">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
+                 <item>
+                  <widget class="QLabel" name="Settings_displacement_label">
+                   <property name="styleSheet">
+                    <string notr="true">font: 10pt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Displacement Map</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="Settings_displacement_enable">
+                   <property name="toolTip">
+                    <string>Toogle computation of Displacement Map (Shorcut: Alt+1)</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="shortcut">
+                    <string>Alt+1</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="Settings_displacement_export">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="swizzle_frame_Layout_2">
+                 <item>
+                  <widget class="QComboBox" name="Settings_displacement_format">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>TIFF</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>PNG</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="Settings_displacement_depth">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>32bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>16bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>8bit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="Settings_displacement_suffix"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="Settings_displacement_mode_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+                 <item>
+                  <widget class="QLabel" name="Settings_displacement_mode_label">
+                   <property name="text">
+                    <string>Display as</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="Settings_displacement_mode">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Colormaps available for better visualization of height information. Does not affect the exported maps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>Grayscale</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Viridis</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Magma</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="Settings_displacement_end">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="Settings_normalmap">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QFrame" name="Settings_normal_header">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,0">
+                 <item>
+                  <widget class="QLabel" name="Settings_normal_label">
+                   <property name="styleSheet">
+                    <string notr="true">font: 10pt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Normal Map</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="Settings_normal_enable">
+                   <property name="toolTip">
+                    <string>Toogle computation of Normal Map (Shorcut: Alt+2)</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="shortcut">
+                    <string>Alt+2</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="Settings_normal_export">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="swizzle_frame_Layout_3">
+                 <item>
+                  <widget class="QComboBox" name="Settings_normal_format">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>TIFF</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>PNG</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="Settings_normal_depth">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>32bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>16bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>8bit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="Settings_normal_suffix"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="swizzle_frame">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="swizzle_frame_Layout">
+                 <item>
+                  <widget class="QComboBox" name="swizzle_x">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>+X</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-X</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="swizzle_y">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>+Y</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>-Y</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_normal_scale">
+                <property name="name">
+                 <string>Intensity</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="Settings_normal_end">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="Settings_curvature">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QFrame" name="Settings_curvature_header">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,0">
+                 <item>
+                  <widget class="QLabel" name="Settings_curvature_label">
+                   <property name="styleSheet">
+                    <string notr="true">font: 10pt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Curvature Map</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="Settings_curvature_enable">
+                   <property name="toolTip">
+                    <string>Toogle computation of Curvature Map (Shorcut: Alt+3)</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="shortcut">
+                    <string>Alt+3</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="Settings_curvature_export">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="swizzle_frame_Layout_4">
+                 <item>
+                  <widget class="QComboBox" name="Settings_curvature_format">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>TIFF</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>PNG</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="Settings_curvature_depth">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>32bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>16bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>8bit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="Settings_curvature_suffix"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="Settings_curvature_mode">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Curvature Map supports 4 modes:&lt;/p&gt;&lt;p&gt;- Complete (Grayscale): Bright values mean convex surface at that point and dark values mean concave.&lt;/p&gt;&lt;p&gt;- Split (Dual channel): Curvature information is split in two channels of an RGB image. Red channel holds concavity using the entire range from black to white and Green channel holds convexity.&lt;/p&gt;&lt;p&gt;- Convexity (Peaks): Only the convexity information is kept, identical to the Green channel in Split mode.&lt;/p&gt;&lt;p&gt;- Concavity (Valleys): Only the concavity information is kept, identical to the Red channel in Split mode.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Complete (Grayscale)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Split (Dual channel)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Convexity (Peaks)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Concavity (Valleys)</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_curvature_scale">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Final intensity or contrast of the Curvature map.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="name">
+                 <string>Intensity</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="Settings_curvature_end">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="Settings_ao">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QFrame" name="Settings_ao_header">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,0">
+                 <item>
+                  <widget class="QLabel" name="Settings_ao_label">
+                   <property name="styleSheet">
+                    <string notr="true">font: 10pt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Ambient Occlusion Map</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="Settings_ao_enable">
+                   <property name="toolTip">
+                    <string>Toogle computation of Ambient Occlusion Map (Shorcut: Alt+4)</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="shortcut">
+                    <string>Alt+4</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="Settings_ao_export">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="swizzle_frame_Layout_5">
+                 <item>
+                  <widget class="QComboBox" name="Settings_ao_format">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>TIFF</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>PNG</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="Settings_ao_depth">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>32bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>16bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>8bit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="Settings_ao_suffix"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_ao_scale">
+                <property name="name">
+                 <string>Depth</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_ao_samples">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of radial samples taken for the AO calculation.  Increases computation time significantly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="singleSteps">
+                 <double>28.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>128.000000000000000</double>
+                </property>
+                <property name="minimum">
+                 <double>8.000000000000000</double>
+                </property>
+                <property name="name">
+                 <string>Samples</string>
+                </property>
+                <property name="discrete">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_ao_distance">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum search distance for the AO calculation. Increases computation time significantly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="minimum">
+                 <double>0.000100000000000</double>
+                </property>
+                <property name="name">
+                 <string>Distance</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="SettingWidget" name="Settings_ao_power">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Brightness of Ambient Occlusion map.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="name">
+                 <string>Power</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="Settings_ao_end">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="BottomFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+          <item>
+           <widget class="QPushButton" name="actionSaveSettings">
+            <property name="text">
+             <string>Save Current Settings</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="Status">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Ready</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="ProgressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="format">
+          <string>%p%</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="Line" name="MiddleSeparator">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QScrollArea" name="SettingsScrollArea">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="SettingsAreaLayout">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>1057</width>
-         <height>1300</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,1,1,1,1,0,0">
-        <item>
-         <widget class="QFrame" name="Settings_general">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="Settings_heightmap_Layout">
-           <item>
-            <widget class="QLabel" name="Settings_general_label">
-             <property name="styleSheet">
-              <string notr="true">font: 10pt;</string>
-             </property>
-             <property name="text">
-              <string>Global</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="WorkingResolution_frame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-              <item>
-               <widget class="QLabel" name="WorkingResolution_label">
-                <property name="text">
-                 <string>Working Resolution</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="WorkingResolution">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fraction of input resolution used. Requires re-computing the result at full resolution upon export but can make iteration much faster.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Full</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Half</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Quarter</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_high_pass">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The lower the value the lower the maximum frequency (smaller features only) of the result when going from curvature to normal or normal to curvature.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="minimum">
-              <double>0.000100000000000</double>
-             </property>
-             <property name="name">
-              <string>Frequency Window</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="Settings_general_end">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="Settings_displacement">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QFrame" name="Settings_displacement_header">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
-              <item>
-               <widget class="QLabel" name="Settings_displacement_label">
-                <property name="styleSheet">
-                 <string notr="true">font: 10pt;</string>
-                </property>
-                <property name="text">
-                 <string>Displacement Map</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="Settings_displacement_enable">
-                <property name="toolTip">
-                 <string>Toogle computation of Displacement Map (Shorcut: Alt+1)</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="shortcut">
-                 <string>Alt+1</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="Settings_displacement_export">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="swizzle_frame_Layout_2">
-              <item>
-               <widget class="QComboBox" name="Settings_displacement_format">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>TIFF</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>PNG</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="Settings_displacement_depth">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>32bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>16bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>8bit</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="Settings_displacement_suffix"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="Settings_displacement_mode_frame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
-              <item>
-               <widget class="QLabel" name="Settings_displacement_mode_label">
-                <property name="text">
-                 <string>Display as</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="Settings_displacement_mode">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Colormaps available for better visualization of height information. Does not affect the exported maps.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Grayscale</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Viridis</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Magma</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="Settings_displacement_end">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="Settings_normalmap">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QFrame" name="Settings_normal_header">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,0">
-              <item>
-               <widget class="QLabel" name="Settings_normal_label">
-                <property name="styleSheet">
-                 <string notr="true">font: 10pt;</string>
-                </property>
-                <property name="text">
-                 <string>Normal Map</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="Settings_normal_enable">
-                <property name="toolTip">
-                 <string>Toogle computation of Normal Map (Shorcut: Alt+2)</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="shortcut">
-                 <string>Alt+2</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="Settings_normal_export">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="swizzle_frame_Layout_3">
-              <item>
-               <widget class="QComboBox" name="Settings_normal_format">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>TIFF</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>PNG</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="Settings_normal_depth">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>32bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>16bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>8bit</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="Settings_normal_suffix"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="swizzle_frame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="swizzle_frame_Layout">
-              <item>
-               <widget class="QComboBox" name="swizzle_x">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>+X</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>-X</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="swizzle_y">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>+Y</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>-Y</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_normal_scale">
-             <property name="name">
-              <string>Intensity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="Settings_normal_end">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="Settings_curvature">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QFrame" name="Settings_curvature_header">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,0">
-              <item>
-               <widget class="QLabel" name="Settings_curvature_label">
-                <property name="styleSheet">
-                 <string notr="true">font: 10pt;</string>
-                </property>
-                <property name="text">
-                 <string>Curvature Map</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="Settings_curvature_enable">
-                <property name="toolTip">
-                 <string>Toogle computation of Curvature Map (Shorcut: Alt+3)</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="shortcut">
-                 <string>Alt+3</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="Settings_curvature_export">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="swizzle_frame_Layout_4">
-              <item>
-               <widget class="QComboBox" name="Settings_curvature_format">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>TIFF</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>PNG</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="Settings_curvature_depth">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>32bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>16bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>8bit</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="Settings_curvature_suffix"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="Settings_curvature_mode">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Curvature Map supports 4 modes:&lt;/p&gt;&lt;p&gt;- Complete (Grayscale): Bright values mean convex surface at that point and dark values mean concave.&lt;/p&gt;&lt;p&gt;- Split (Dual channel): Curvature information is split in two channels of an RGB image. Red channel holds concavity using the entire range from black to white and Green channel holds convexity.&lt;/p&gt;&lt;p&gt;- Convexity (Peaks): Only the convexity information is kept, identical to the Green channel in Split mode.&lt;/p&gt;&lt;p&gt;- Concavity (Valleys): Only the concavity information is kept, identical to the Red channel in Split mode.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>Complete (Grayscale)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Split (Dual channel)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Convexity (Peaks)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Concavity (Valleys)</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_curvature_scale">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Final intensity or contrast of the Curvature map.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="name">
-              <string>Intensity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="Settings_curvature_end">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="Settings_ao">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QFrame" name="Settings_ao_header">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,0">
-              <item>
-               <widget class="QLabel" name="Settings_ao_label">
-                <property name="styleSheet">
-                 <string notr="true">font: 10pt;</string>
-                </property>
-                <property name="text">
-                 <string>Ambient Occlusion Map</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="Settings_ao_enable">
-                <property name="toolTip">
-                 <string>Toogle computation of Ambient Occlusion Map (Shorcut: Alt+4)</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="shortcut">
-                 <string>Alt+4</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="Settings_ao_export">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout" name="swizzle_frame_Layout_5">
-              <item>
-               <widget class="QComboBox" name="Settings_ao_format">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>TIFF</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>PNG</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="Settings_ao_depth">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>32bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>16bit</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>8bit</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="Settings_ao_suffix"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_ao_scale">
-             <property name="name">
-              <string>Depth</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_ao_samples">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of radial samples taken for the AO calculation.  Increases computation time significantly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="singleSteps">
-              <double>28.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>128.000000000000000</double>
-             </property>
-             <property name="minimum">
-              <double>8.000000000000000</double>
-             </property>
-             <property name="name">
-              <string>Samples</string>
-             </property>
-             <property name="discrete">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_ao_distance">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum search distance for the AO calculation. Increases computation time significantly.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="minimum">
-              <double>0.000100000000000</double>
-             </property>
-             <property name="name">
-              <string>Distance</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="SettingWidget" name="Settings_ao_power">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Brightness of Ambient Occlusion map.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="name">
-              <string>Power</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="Settings_ao_end">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="BottomFrame">
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
-           <item>
-            <widget class="QPushButton" name="actionSaveSettings">
-             <property name="text">
-              <string>Save Current Settings</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="Status">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Ready</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QProgressBar" name="ProgressBar">
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="format">
-           <string>%p%</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>

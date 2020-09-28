@@ -10,7 +10,6 @@
 /fSettingWidgetPlugin/x64/Release
 /Signing
 /x64
-/Settings location.lnk
 /fNablaEngine/Colormaps.py
 /Deploy/fNabla.tmp
 /fNablaEngine/EDSR_x2.pb
@@ -22,4 +21,5 @@
 /MKL build/lp64_sequential/x64
 /MKL build/vml_dll_core/x64
 /_Dependencies
-/Install location.lnk
+*.lnk
+*.txt

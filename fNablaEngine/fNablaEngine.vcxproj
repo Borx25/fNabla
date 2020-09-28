@@ -109,7 +109,7 @@
       <MinimalRebuild>
       </MinimalRebuild>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -147,6 +147,7 @@
     <ClInclude Include="fNablaConfig.h" />
     <ClInclude Include="fNablaConstants.h" />
     <ClInclude Include="fNablaEngineCuda.cuh" />
+    <ClInclude Include="fNablaInternalDependencies.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fNablaEngine.h" />
